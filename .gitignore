@@ -1,0 +1,7 @@
+/vendor
+/runtime
+/storage
+/.env
+/composer.lock
+/admin/static
+/home/static
