@@ -1,23 +1,58 @@
 <?php $this->load('common/header');?>
 <div class="container-fluid" id="site-page">
-	<form class="form-inline">
-		<input type="hidden" name="opn" value="editSite">
-		<div class="col-md-12 pt10">
-			<div class="f14 f600">title: <span class="glyphicon glyphicon-globe" data-id="title"></span></div>
-			<textarea class="form-control mt2" name="title" rows="3" cols="100"><?php echo $info['title'] ?? '';?></textarea>
-		</div>
-		<div class="col-md-12 pt10">
-			<div class="f14 f600">keyword: <span class="glyphicon glyphicon-globe" data-id="keyword"></div>
-			<textarea class="form-control mt2" name="keyword" rows="3" cols="100"><?php echo $info['keyword'] ?? '';?></textarea>
-		</div>
-		<div class="col-md-12 pt10">
-			<div class="f14 f600">description: <span class="glyphicon glyphicon-globe" data-id="description"></div>
-			<textarea class="form-control mt2" name="description" rows="3" cols="100"><?php echo $info['description'] ?? '';?></textarea>
-		</div>
-		<div class="col-md-12 pt10">
-			<button type="button" class="btn btn-primary w30 save-btn">保存</button>
-		</div>
-	</form>
+	<div class="form-group right">
+		<button class="btn btn-success add-btn" type="button"><i class="glyphicon glyphicon-plus-sign"></i> 新增站点</button>
+	</div>
+	<table class="table table-hover mt20" id="data-list">
+        <tbody>
+	        <tr>
+	            <th class="col-md-1">ID</th>
+	            <th class="col-md-1">名称</th>
+	            <th class="col-md-1">域名</th>
+	            <th class="col-md-2">title</th>
+	            <th class="col-md-2">keyword</th>
+	            <th class="col-md-2">description</th>
+	            <th class="col-md-2">操作</th>
+	        </tr>
+        	<?php if (empty($list)){ ?>
+        	<tr>
+        		<td colspan="10">
+        			<div class="tc orange">暂无数据</div>
+        		</td>
+        	</tr>
+        	<?php } else {?>
+        	<?php foreach ($list as $key => $value) { ?>
+        	<tr data-id="<?php echo $value['site_id'];?>">
+        		<td class="col-md-1"><?php echo $value['site_id'];?></td>
+        		<td class="col-md-1"><?php echo $value['name'];?></td>
+        		<td class="col-md-1"><?php echo $value['domain'];?></td>
+        		<td class="col-md-2">
+        			<?php if (!empty($value['title'])){?>
+        			<span class="glyphicon glyphicon-globe" title="翻译" data-id="title"></span>
+        			<?php } ?>
+        			<span><?php echo $value['title'];?></span>
+        		</td>
+        		<td class="col-md-2">
+        			<?php if (!empty($value['keyword'])){?>
+        			<span class="glyphicon glyphicon-globe" title="翻译" data-id="keyword"></span>
+        			<?php } ?>
+        			<span><?php echo $value['keyword'];?></span>
+        		</td>
+        		<td class="col-md-2">
+        			<?php if (!empty($value['description'])){?>
+        			<span class="glyphicon glyphicon-globe" title="翻译" data-id="description"></span>
+        			<?php } ?>
+        			<span><?php echo $value['description'];?></span>
+        		</td>
+        		<td class="col-md-2">
+        			<button class="btn btn-primary btn-xs modify mt2" type="button"><i class="glyphicon glyphicon-edit"></i> 修改</button>
+        		</td>
+        	</tr>
+        	<?php } ?>
+        	<?php }?>
+        </tbody>
+    </table>
+	<?php echo page($size, $total);?>
 </div>
 <!-- 多语言弹窗 -->
 <div id="dealbox-language" class="hidden">
@@ -27,6 +62,8 @@
 	        <button type="button" class="close" aria-hidden="true">&times;</button>
 	        <div class="f24 dealbox-title">多语言配置</div>
 	        <input type="hidden" name="name" value="">
+	        <input type="hidden" name="value" value="value">
+	        <input type="hidden" name="site_id" value="0">
 	        <input type="hidden" name="opn" value="editLanguage">
 	        <table class="table table-bordered table-hover">
 	        	<tbody>
@@ -50,6 +87,39 @@
         			<?php } ?>
 	        	</tbody>
 	        </table>
+	        <button type="botton" class="btn btn-primary btn-lg btn-block save-btn mt20">确认</button>
+	    </form>
+	</div>
+</div>
+<!-- 多语言弹窗 -->
+<div id="dealbox-info" class="hidden">
+	<div class="mask"></div>
+	<div class="centerShow">
+	    <form class="form-horizontal">
+	        <button type="button" class="close" aria-hidden="true">&times;</button>
+	        <div class="f24 dealbox-title">编辑</div>
+	        <input type="hidden" name="site_id" value="0">
+	        <input type="hidden" name="opn" value="editSite">
+	        <div class="input-group">
+	            <div class="input-group-addon"><span>名称</span>：</div>
+	            <input class="form-control" name="name" required="required" />
+	        </div>
+	        <div class="input-group">
+	            <div class="input-group-addon"><span>域名</span>：</div>
+	            <input class="form-control" name="domain" required="required" />
+	        </div>
+	        <div class="input-group">
+	            <div class="input-group-addon"><span>title</span>：</div>
+	            <textarea class="form-control" name="title" required="required"></textarea>
+	        </div>
+	        <div class="input-group">
+	            <div class="input-group-addon"><span>keyword</span>：</div>
+	            <textarea class="form-control" name="keyword" required="required"></textarea>
+	        </div>
+	        <div class="input-group">
+	            <div class="input-group-addon"><span>description</span>：</div>
+	            <textarea class="form-control" name="description" required="required"></textarea>
+	        </div>
 	        <button type="botton" class="btn btn-primary btn-lg btn-block save-btn mt20">确认</button>
 	    </form>
 	</div>

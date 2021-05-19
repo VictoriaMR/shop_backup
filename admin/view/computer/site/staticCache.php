@@ -2,7 +2,7 @@
 <div class="container-fluid">
 	<div class="row-item">
 		<div class="right">
-            <button class="btn btn-danger delete" data-id="all" type="button" style="width: 200px;"><i class="glyphicon glyphicon-trash"></i> 清除全部日志</button>
+            <button class="btn btn-danger delete" data-id="all" type="button" style="width: 200px;"><i class="glyphicon glyphicon-trash"></i> 清除全部缓存</button>
         </div>
         <div class="clear"></div>
 	</div>

@@ -32,7 +32,7 @@ class App
         if ($info['class'] == 'Admin') {
             \frame\Html::buildJs(['jquery', 'common', 'bootstrap', 'bootstrap-plugin']);
             \frame\Html::buildCss(['computer/common', 'computer/bootstrap', 'computer/space', 'icon']);
-        } elseif ($info['class'] == 'Home') {
+        } else {
             \frame\Html::buildJs(['jquery', 'common']);
             \frame\Html::buildCss(['icon', (isMobile() ? 'mobile/common' : 'computer/common')]);
         }

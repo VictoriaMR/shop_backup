@@ -3,34 +3,27 @@
 namespace App\Services;
 
 use App\Services\Base as BaseService;
+use App\Models\Site;
 
 class SiteService extends BaseService
 {
-	public function getInfo($siteId=1)
-	{
-		return make('App\Models\Site')->loadData($siteId);
-	}
-
-	public function updateInfo($siteId=1, array $data)
-	{
-		return make('App\Models\Site')->updateDataById($siteId, $data);
-	}
-
-	public function getLanguage($name)
+    public function __construct(Site $model)
     {
-        if (empty($name)) {
-            return [];
-        }
-        return make('App\Models\SiteLanguage')->getListByWhere(['name' => $name]);
+        $this->baseModel = $model;
     }
 
-    public function setNxLanguage($name, $lanId, $value)
+	public function getLanguage(array $where)
     {
-        if (empty($name) || empty($lanId) || empty($value)) {
+        return make('App\Models\SiteLanguage')->getListByWhere($where);
+    }
+
+    public function setNxLanguage($siteId, $name, $lanId, $value)
+    {
+        if (empty($siteId) || empty($name) || empty($lanId) || empty($value)) {
             return false;
         }
         $model = make('App\Models\SiteLanguage');
-        $where = ['site_id'=>1, 'name'=>$name, 'lan_id'=>$lanId];
+        $where = ['site_id'=>$siteId, 'name'=>$name, 'lan_id'=>$lanId];
         if ($model->getCount($where)) {
             return $model->where($where)->update(['value' => $value]);
         } else {

@@ -45,6 +45,16 @@ class Base
         return $this->baseModel->deleteById($id);
     }
 
+    public function getCount(array $where=[])
+    {
+        return $this->baseModel->getCount($where);
+    }
+
+    public function getListByWhere(array $where=[], $field='*', $page=1, $size=20)
+    {
+        return $this->baseModel->getListByWhere($where, $field, $page, $size);
+    }
+
     public static function constant($const, $model = 'base')
     {
         $namespace = 'static';

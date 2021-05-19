@@ -68,7 +68,9 @@ function dbconfig($db = 'default')
 }
 function env($name = '', $replace = '')
 {
-    if (empty($name)) return config('ENV');
+    if (defined($name)) {
+        return constant($name);
+    }
     return config('ENV')[$name] ?? $replace;
 }
 function redirect($url)
@@ -108,7 +110,7 @@ function iget($name = '', $default = null)
 {
     if (empty($name)) return $_GET;
     if (isset($_GET[$name])) {
-        return  $_GET[$name];
+        return $_GET[$name];
     }
     return $default;
 }

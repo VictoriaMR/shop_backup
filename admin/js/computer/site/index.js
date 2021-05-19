@@ -1,27 +1,47 @@
 var SITE = {
 	init: function() {
-		$('#site-page .btn.save-btn').on('click', function(){
-			var obj = $(this);
+		$('#site-page .btn.add-btn').on('click', function(){
+			SITE.initInfo('新增');
+		});
+		//编辑按钮
+		$('#site-page .btn.modify').on('click', function(){
+			const obj = $(this);
+			obj.button('loading');
+			const id = obj.parents('tr').data('id');
+			post(URI+'site', {opn: 'getInfo', id: id}, function(data){
+				obj.button('reset');
+				SITE.initInfo('编辑', data);
+			});
+		});
+		//保存按钮
+		$('#dealbox-info .btn.save-btn').on('click', function(){
+			const obj = $(this);
 			post(URI+'site', obj.parents('form').serializeArray(), function(){
-
+				window.location.reload();
 			});
 		});
 		$('#site-page .glyphicon-globe').on('click', function(){
-			var obj = $(this);
-			var id = obj.data('id');
-	    	post(URI+'site', {opn: 'getSiteLanguage', name: id}, function(data){
-	    		var obj = $('#dealbox-language');
-	    		obj.find('input[name="name"]').val(id);
-	    		obj.find('table textarea').val('');
+			const obj = $(this);
+			obj.button('loading');
+			const name = obj.data('id');
+			const id = obj.parents('tr').data('id');
+			const value = obj.next().text();
+	    	post(URI+'site', {opn: 'getSiteLanguage', name: name, id: id}, function(data){
+	    		obj.button('reset');
+	    		var showObj = $('#dealbox-language');
+	    		showObj.find('input[name="name"]').val(name);
+	    		showObj.find('input[name="value"]').val(value);
+	    		showObj.find('input[name="site_id"]').val(id);
+	    		showObj.find('table textarea').val('');
 	    		for (var i in data) {
-	    			obj.find('table textarea[name="language['+data[i].lan_id+']"]').val(data[i].value);
+	    			showObj.find('table textarea[name="language['+data[i].lan_id+']"]').val(data[i].value);
 	    		}
-	    		obj.dealboxShow(id);
+	    		showObj.dealboxShow();
 			});
 		});
 		//保存语言
 	    $('#dealbox-language .save-btn').on('click', function(){
-	    	var obj = $(this);
+	    	const obj = $(this);
 	    	obj.button('loading');
 	    	post(URI+'site', $('#dealbox-language form').serializeArray(), function(){
 	    		obj.button('reset');
@@ -31,16 +51,11 @@ var SITE = {
 	    });
 	    //自动翻译
 	    $('#dealbox-language .glyphicon-transfer').on('click', function() {
-	    	var name = $(this).parents('form').find('input[name="name"]').val();
-	    	var value = $('#site-page textarea[name="'+name+'"]').val();
-	    	if (!value) {
-	    		errorTips('没有设置值');
-	    		return false;
-	    	}
+	    	const value = $(this).parents('form').find('[name="value"]').val();
 	    	$(this).parents('form').find('table tr').each(function(){
-	    		var obj = $(this);
-	    		var code = obj.data('id');
-	    		var val = obj.find('textarea').val();
+	    		const obj = $(this);
+	    		const code = obj.data('id');
+	    		const val = obj.find('textarea').val();
 	    		if (code && !val) {
 	    			post(URI+'site', {opn: 'getTransfer', value: value, code: code}, function(data) {
 			    		if (data) {
@@ -50,5 +65,23 @@ var SITE = {
 	    		}
 	    	});
 	    });
+	},
+	initInfo: function(title, data) {
+		if (!data) {
+			data = {
+				site_id: 0,
+				name: '',
+				domain: '',
+				title: '',
+				keyword: '',
+				description: '',
+			};
+		}
+		const obj = $('#dealbox-info');
+		for (var i in data) {
+			obj.find('[name="'+i+'"]').val(data[i]);
+		}
+		obj.dealboxShow(title);
+		return true;
 	}
 };

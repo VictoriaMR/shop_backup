@@ -15,7 +15,6 @@ class SiteController extends Controller
             'siteLog' => '站点日志',
         ];
         $this->_default = '站点管理';
-        $this->siteId = 1;
 		$this->_init();
 	}
 
@@ -23,31 +22,63 @@ class SiteController extends Controller
 	{	
 		if (isPost()) {
 			$opn = ipost('opn');
-			if (in_array($opn, ['editSite', 'getSiteLanguage', 'getTransfer', 'editLanguage'])) {
+			if (in_array($opn, ['editSite', 'getSiteLanguage', 'getTransfer', 'editLanguage', 'getInfo'])) {
 				$this->$opn();
 			}
 			$this->error('非法请求');
 		}
 		Html::addJs();
-		$info = make('App\Services\SiteService')->getInfo($this->siteId);
+		$page = iget('page', 1);
+		$size = iget('size', 20);
+		$total = make('App\Services\SiteService')->getCount([]);
+		if ($total > 0) {
+			$list = make('App\Services\SiteService')->getListByWhere([], '*', $page, $size);
+		}
+
 		//语言列表
 		$language = make('App\Services\LanguageService')->getInfo();
+
+		$this->assign('total', $total);
+		$this->assign('size', $size);
+		$this->assign('list', $list ?? []);
 		$this->assign('language', $language);
-		$this->assign('info', $info);
 		return view();
+	}
+
+	protected function getInfo()
+	{
+		$id = (int) ipost('id');
+		if (empty($id)) {
+			$this->error('参数不正确');
+		}
+		$info = make('App\Services\SiteService')->loadData($id);
+		if (empty($info)) {
+			$this->error('获取数据失败');
+		} else {
+			$this->success($info, '获取成功');
+		}
 	}
 
 	protected function editSite()
 	{
+		$id = (int) ipost('site_id');
+		$name = trim(ipost('name'));
+		$domain = trim(ipost('domain'));
 		$title = trim(ipost('title'));
 		$keyword = trim(ipost('keyword'));
 		$description = trim(ipost('description'));
 		$data = [
+			'name' => $name,
+			'domain' => $domain,
 			'title' => $title,
 			'keyword' => $keyword,
 			'description' => $description,
 		];
-		$result = make('App\Services\SiteService')->updateInfo($this->siteId, $data);
+		if (empty($id)) {
+			$result = make('App\Services\SiteService')->insert($data);
+		} else {
+			$result = make('App\Services\SiteService')->updateDataById($id, $data);
+		}
 		if ($result) {
 			$this->success('操作成功');
 		} else {
@@ -58,10 +89,15 @@ class SiteController extends Controller
 	protected function getSiteLanguage()
 	{
 		$name = trim(ipost('name'));
-		if (empty($name)) {
-			$this->error('类型不正确');
+		$id = (int) ipost('id');
+		if (empty($name) || empty($id)) {
+			$this->error('参数不正确');
 		}
-		$info = make('App\Services\SiteService')->getLanguage($name);
+		$where = [
+			'site_id' => $id,
+			'name' => $name,
+		];
+		$info = make('App\Services\SiteService')->getLanguage($where);
 		$this->success($info ?? [], '');
 	}
 
@@ -85,14 +121,15 @@ class SiteController extends Controller
 	protected function editLanguage()
 	{
 		$name = trim(ipost('name'));
-		if (empty($name)) {
-			$this->error('类型不正确');
+		$siteId = (int)ipost('site_id');
+		if (empty($name) || empty($siteId)) {
+			$this->error('参数不正确');
 		}
 		$language = ipost('language');
 		if (!empty($language)) {
 			$services = make('App\Services\SiteService');
 			foreach ($language as $key => $value) {
-				$services->setNxLanguage($name, $key, $value);
+				$services->setNxLanguage($siteId, $name, $key, $value);
 			}
 		}
 		$this->success('操作成功');
@@ -109,17 +146,18 @@ class SiteController extends Controller
 		}
 		Html::addJs();
 		$files = [];
-		$path = ROOT_PATH.'admin'.DS.'static';
-		$this->getFileList($path, $files);
-		$path = ROOT_PATH.'home'.DS.'static';
-		$this->getFileList($path, $files);
+		$siteList = make('App\Services\SiteService')->getListByWhere([], 'name');
+		foreach ($siteList as $key => $value) {
+			$path = ROOT_PATH.$value['name'].DS.'static';
+			$this->getFileList($path, $files);
+		}
 		if (!empty($files)) {
 			$list = [];
 			foreach ($files as $key => $value) {
 				$list[] = [
 					'name' => str_replace(ROOT_PATH, '', $value),
 					'size' => filesize($value),
-					'c_time' => date('Y-m-d H:i:s', filectime($value)),
+					'c_time' => date('Y-m-d H:i:s', filemtime($value)),
 				];
 			}
 		}
@@ -136,10 +174,11 @@ class SiteController extends Controller
 		}
 		if ($name == 'all') {
 			$files = [];
-			$path = ROOT_PATH.'admin'.DS.'static';
-			$this->getFileList($path, $files);
-			$path = ROOT_PATH.'home'.DS.'static';
-			$this->getFileList($path, $files);
+			$siteList = make('App\Services\SiteService')->getListByWhere([], 'name');
+			foreach ($siteList as $key => $value) {
+				$path = ROOT_PATH.$value['name'].DS.'static';
+				$this->getFileList($path, $files);
+			}
 			if (!empty($files)) {
 				foreach ($files as $key => $value) {
 					unlink($value);

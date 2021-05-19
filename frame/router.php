@@ -66,9 +66,6 @@ final class Router
 			}
 		}
 		array_shift($_GET);
-		if (!in_array(self::$_route['class'], config('router'))) {
-			throw new \Exception(self::$_route['class'] ?? 'no class' . ' was a illegal routing', 1);
-		}
 		if (count(self::$_route) != 3) {
 			throw new \Exception(' router analyed error', 1);
 		}
@@ -86,6 +83,6 @@ final class Router
 		if (!empty($param)) {
 			$url .= '?' . http_build_query($param);
 		}
-		return APP_DOMAIN.$url;
+		return env('APP_DOMAIN').$url;
 	}
 }
