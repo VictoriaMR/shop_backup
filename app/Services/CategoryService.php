@@ -63,7 +63,7 @@ class CategoryService extends BaseService
         if (empty($info)) {
             return [];
         }
-        $info['avatar_format'] = empty($info['avatar']) ? staticUrl('image/common/noimg.png') : mediaUrl($info['avatar'], 200);
+        $info['avatar_format'] = empty($info['avatar']) ? siteUrl('image/common/noimg.png') : mediaUrl($info['avatar'], 200);
         return $info;
     }
 
@@ -82,7 +82,7 @@ class CategoryService extends BaseService
         if (!empty($list)) {
             foreach ($list as $key => $value) {
                 if (empty($value['avatar'])) {
-                    $value['avatar'] = staticUrl('image/common/noimg.png');
+                    $value['avatar'] = siteUrl('image/common/noimg.png');
                 } else {
                     $value['avatar'] = mediaUrl($value['avatar'], 200);
                 }
@@ -218,7 +218,7 @@ class CategoryService extends BaseService
         $list = $this->baseModel->field('(sale_total+visit_total) AS sort_number, cate_id, name, avatar')->where('parent_id', '>', 0)->orderBy(['sort_number'=>'desc', 'sort' => 'asc'])->page(1, $size)->get();
         foreach ($list as $key => $value) {
             if (empty($value['avatar'])) {
-                $value['avatar'] = staticUrl('image/common/noimg.png');
+                $value['avatar'] = siteUrl('image/common/noimg.png');
             } else {
                 $value['avatar'] = mediaUrl($value['avatar'], 200);
             }

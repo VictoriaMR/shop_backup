@@ -9,29 +9,29 @@ class Html
 
     public static function addCss($name = '')
     {
-        if (empty($name)) {
-            $matchPath = '';
-            if (env('APP_VIEW_MATCH')) {
-                $matchPath = (APP_IS_MOBILE ? 'mobile' : 'computer') . DS;
-            }
-            $_route = \Router::$_route;
-            $name = $matchPath . lcfirst($_route['path']) . DS . $_route['func'];
+        $matchPath = '';
+        if (env('APP_VIEW_MATCH')) {
+            $matchPath = (APP_IS_MOBILE ? 'mobile' : 'computer') . DS;
         }
-        self::$_CSS[] = 'css' . DS . $name . '.css';
+        if (empty($name)) {
+            $_route = \Router::$_route;
+            $name = lcfirst($_route['path']) . DS . $_route['func'];
+        }
+        self::$_CSS[] = 'css' . DS . $matchPath . $name . '.css';
         return true;
     }
 
     public static function addJs($name = '', $public = false)
     {
-        if (empty($name)) {
-            $matchPath = '';
-            if (env('APP_VIEW_MATCH')) {
-                $matchPath = (APP_IS_MOBILE ? 'mobile' : 'computer') . DS;
-            }
-            $_route = \Router::$_route;
-            $name = $matchPath . lcfirst($_route['path']) . DS . $_route['func'];
+        $matchPath = '';
+        if (env('APP_VIEW_MATCH')) {
+            $matchPath = (APP_IS_MOBILE ? 'mobile' : 'computer') . DS;
         }
-        self::$_JS[] = 'js' . DS . $name . '.js';
+        if (empty($name)) {
+            $_route = \Router::$_route;
+            $name = lcfirst($_route['path']) . DS . $_route['func'];
+        }
+        self::$_JS[] = 'js' . DS . $matchPath . $name . '.js';
         return true;
     }
 

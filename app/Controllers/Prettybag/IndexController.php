@@ -11,6 +11,7 @@ class IndexController extends Controller
 	{	
 		Html::addCss();
 		Html::addJs();
+		Html::addJs('cart');
 
 		//分类列表
 		$hotCategory = make('App\Services\CategoryService')->getHotCategory();

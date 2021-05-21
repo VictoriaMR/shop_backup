@@ -35,6 +35,9 @@ class App
         } else {
             \frame\Html::buildJs(['jquery', 'common']);
             \frame\Html::buildCss(['icon', (isMobile() ? 'mobile/common' : 'computer/common')]);
+            if (empty(\frame\Session::get('site_language_name'))) {
+                \frame\Session::set('site_language_name', 'en');
+            }
         }
         //执行方法
         $class = 'App\\Controllers\\'.$info['class'].'\\'.$info['path'].'Controller';

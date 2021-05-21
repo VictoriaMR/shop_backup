@@ -116,6 +116,24 @@ Class Query
 		return $this->get()[0] ?? [];
 	}
 
+	public function value($name='')
+	{
+		$this->_offset = 0;
+		$this->_limit = 1;
+		if (!empty($name)) {
+			$this->_columns = $name;
+		}
+		$info = $this->get()[0] ?? [];
+		if (empty($info)) {
+			return '';
+		}
+		if (empty($name)) {
+			return array_shift($info);
+		} else {
+			return $info[$name] ?? '';
+		}
+	}
+
 	public function count()
 	{
 		$this->_columns = 'COUNT(*) AS count';

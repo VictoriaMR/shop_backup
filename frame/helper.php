@@ -90,14 +90,6 @@ function url($url = null, $param = null)
 {
     return \Router::buildUrl($url, $param);
 }
-function staticUrl($url, $type = '')
-{
-    if ($type == '') {
-        return env('APP_DOMAIN') . $url;
-    } else {
-        return env('APP_DOMAIN') . $type . DS . $url . '.' . $type;
-    }
-}
 function ipost($name = '', $default = null) 
 {
     if (empty($name)) return $_POST;
@@ -241,4 +233,12 @@ function dist($name)
         return $name;
     }
     return make('App/Services/TranslateService')->getText($name, $trCode);
+}
+function appT($text)
+{
+    return make('App/Services/TranslateService')->getText($text);
+}
+function utf8len($string)
+{
+    return mb_strlen($string, 'UTF-8');
 }

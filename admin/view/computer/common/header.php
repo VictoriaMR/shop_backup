@@ -7,8 +7,8 @@
     <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
     <meta http-equiv="Cache-Control" content="no-siteapp" />
     <link rel="shortcut icon" href="/favicon.ico" type="image/x-icon">
-    <link rel="stylesheet" type="text/css" href="<?php echo staticUrl('static/c_common.css');?>">
-    <script type="text/javascript" src="<?php echo staticUrl('static/c_common.js');?>"></script>
+    <link rel="stylesheet" type="text/css" href="<?php echo siteUrl('static/c_common.css');?>">
+    <script type="text/javascript" src="<?php echo siteUrl('static/c_common.js');?>"></script>
     <?php foreach (\frame\Html::getCss() as $value) {?>
     <link rel="stylesheet" type="text/css" href="<?php echo env('APP_DOMAIN').$value;?>"><?php }?>
     <?php foreach (\frame\Html::getJs() as $value) {?>

@@ -3,12 +3,18 @@
 namespace App\Services;
 
 use App\Services\Base as BaseService;
+use App\Models\Translate;
 
 /**
  * 翻译接口类
  */
 class TranslateService extends BaseService
 {
+	public function __construct(Translate $model)
+	{
+		$this->baseModel = $model;
+	}
+
 	public function getTranslate($text, $to = 'en', $from = 'zh')
 	{
 		if (empty(env('BAIDU_APPID')) || empty(env('BAIDU_SECRET_KEY'))) {
@@ -40,35 +46,43 @@ class TranslateService extends BaseService
 		return '';
 	}
 
-	public function getText($name, $trCode)
+	public function getText($name)
     {
         if (empty($name)) return '';
-        $cacheKey = 'SITE_TRANSLATE_TEXT_'.strtoupper($trCode);
+    	$code = \frame\Session::get('site_language_name');
+        $cacheKey = 'SITE_TRANSLATE_TEXT_'.strtoupper($code);
         //获取缓存中对应的翻译文本
     	$info = redis(1)->hget($cacheKey, $name);
     	if (empty($info)) {
             //检查文本
-            $this->setNotExist($name, $trCode);
-            $info = $name;	
+            $value = $this->setNotExist($name, $code);
+            if (utf8len($value) > 1) {
+            	redis(1)->hset($cacheKey, $name, $value);
+            	return $value;
+            }
+            return $name;
     	}
     	return $info;
     }
 
-    protected function setNotExist($name, $trCode, $value='')
+    protected function setNotExist($name, $code, $value='')
     {
-        if ($this->isExistName($name, $trCode)) return true;
+    	$value = $this->isExistName($name, $code);
+        if (!empty($value)) {
+        	return $value;
+        }
         $data = [
             'name' => $name,
-            'tr_code' => $trCode, 
+            'type' => $code, 
         ];
         if (!empty($value)) {
             $data['value'] = trim($value);
         }
-        return make('App/Models/Translate')->insert($data);
+        return $this->baseModel->insert($data);
     }
 
-    protected function isExistName($name, $trCode)
+    protected function isExistName($name, $code)
     {
-        return make('App/Models/Translate')->where('name', $name)->where('tr_code', $trCode)->count() > 0;
+        return $this->baseModel->where(['name'=>$name, 'type'=>$code])->value('value');
     }
 }

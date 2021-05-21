@@ -81,6 +81,11 @@
 									<span class="ml6">站点管理</span>
 									<a class="glyphicon glyphicon-link right" title="新窗口打开" target="_blank" href="<?php echo url('site');?>"></a>
 								</li>
+								<li data-src="<?php echo url('transfer');?>" class="selected">
+									<span class="glyphicon glyphicon-sort"></span>
+									<span class="ml6">站点文本</span>
+									<a class="glyphicon glyphicon-link right" title="新窗口打开" target="_blank" href="<?php echo url('transfer');?>"></a>
+								</li>
 							</ul>
 						</div>
 						<div class="item" data-for="product">

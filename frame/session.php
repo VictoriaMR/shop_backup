@@ -4,9 +4,12 @@ namespace frame;
 
 class Session
 {
-	public static function set($key, $data = [])
+	public static function set($key='', $data = [])
 	{
-		if (empty($key)) return false;
+		if (empty($key)) {
+			$_SESSION = [];
+			return true;
+		}
 		$temp = explode('_', $key);
 		if (count($temp) > 1) {
 			$_SESSION[$temp[0]][str_replace($temp[0].'_', '', $key)] = $data;

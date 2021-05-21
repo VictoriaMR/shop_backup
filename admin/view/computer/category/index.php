@@ -75,7 +75,7 @@
 	        <div class="input-group">
 	            <div class="input-group-addon"><span>图片：</span></div>
 	            <div class="form-category-img" style="margin-left:12px;height:50px;width:50px;vertical-align:middle;text-align:center;">
-	                <img src="<?php echo staticUrl('image/common/noimg.png');?>">
+	                <img src="<?php echo siteUrl('image/common/noimg.png');?>">
 	            </div>
 	        </div>
 	        <button type="button" class="btn btn-primary btn-lg w100 save-btn">确认</button>

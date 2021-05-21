@@ -1,5 +1,6 @@
+<?php $router = \Router::$_route;?>
+<?php if ($router['path'] != 'Search'){ ?>
 <div id="pb-footbar">
-	<?php $router = \Router::$_route;?>
 	<a class="tab<?php echo $router['path']=='Index'&&$router['func']=='index'?' active':'';?>" href="<?php echo url('');?>">
 		<span class="iconfont icon-home<?php echo $router['path']=='Index'&&$router['func']=='index'?'fill':'';?>"></span>
 		<p class="text">首页</p>
@@ -21,5 +22,6 @@
 		<p class="text">我的</p>
 	</a>
 </div>
+<?php } ?>
 </body>
 </html>
