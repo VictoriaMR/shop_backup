@@ -9,7 +9,7 @@ use App\Services\Base as BaseService;
  */
 class LanguageService extends BaseService
 {	
-	const CACHE_KEY = 'LANGUAGE_CACHE';
+	const CACHE_KEY = 'SITE_LANGUAGE_CACHE';
 
 	public function create(array $data)
 	{

@@ -10,6 +10,8 @@ use App\Models\Translate;
  */
 class TranslateService extends BaseService
 {
+    const CACHE_KEY = 'SITE_TRANSLATE_TEXT_';
+
 	public function __construct(Translate $model)
 	{
 		$this->baseModel = $model;
@@ -84,5 +86,29 @@ class TranslateService extends BaseService
     protected function isExistName($name, $code)
     {
         return $this->baseModel->where(['name'=>$name, 'type'=>$code])->value('value');
+    }
+
+    public function reloadCache()
+    {
+        $list = make('App/Services/LanguageService')->getInfo();
+        foreach ($list as $key => $value) {
+            $cacheKey = self::CACHE_KEY.strtoupper($value['code']);
+            redis(1)->del($cacheKey);
+        }
+
+        $list = $this->baseModel->where('value', '<>', '')->get();
+
+        $tempData = [];
+        foreach ($list as $key => $value) {
+            if (!isset($tempData[$value['type']])) {
+                $tempData[$value['type']] = [];
+            }
+            $tempData[$value['type']][$value['name']] = $value['value'];
+        }
+        foreach ($tempData as $key => $value) {
+            $cacheKey = self::CACHE_KEY.strtoupper($key);
+            redis(1)->hmset($cacheKey, $value);
+        }
+        return true;
     }
 }

@@ -66,9 +66,9 @@ class Redis
     {
         if (is_null(self::$_link)) return false;
         if ($func == 'hmset') {
-            foreach ($arg as $key => $value) {
+            foreach ($arg[1] as $key => $value) {
                 if (is_array($value)) {
-                    $arg[$key] = json_encode($value, JSON_UNESCAPED_UNICODE);
+                    $arg[1][$key] = json_encode($value, JSON_UNESCAPED_UNICODE);
                 }
             }   
         }

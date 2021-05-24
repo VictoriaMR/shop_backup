@@ -20,7 +20,7 @@ class TransferController  extends Controller
 	{	
 		if (isPost()) {
 			$opn = ipost('opn');
-			if (in_array($opn, ['getInfo', 'editInfo'])) {
+			if (in_array($opn, ['getInfo', 'editInfo', 'reloadCache', 'autoTransfer'])) {
 				$this->$opn();
 			}
 		}
@@ -46,11 +46,56 @@ class TransferController  extends Controller
 				}
 			}
 		}
-
 		$this->assign('keyword', $keyword);
 		$this->assign('size', $size);
 		$this->assign('total', $total);
 		$this->assign('list', $list ?? '');
 		return view();
+	}
+
+	protected function getInfo()
+	{
+		$id = (int)ipost('id');
+		if (empty($id)) {
+			$this->error('参数错误');
+		}
+		$info = make('App/Services/TranslateService')->loadData($id);
+		if (empty($info)) {
+			$this->error('获取数据为空');
+		}
+		$languageList = make('App/Services/LanguageService')->getInfoCache();
+		$languageList = array_column($languageList, 'name', 'code');
+		$info['type_name'] = $languageList[$info['type']];
+		$this->success($info, '');
+	}
+
+	protected function reloadCache()
+	{
+		$result = make('App/Services/TranslateService')->reloadCache();
+		if ($result) {
+			$this->success('重构成功');
+		} else {
+			$this->error('重构失败');
+		}
+	}
+
+	protected function autoTransfer()
+	{
+		$value = trim(ipost('value'));
+		$code = trim(ipost('code'));
+		if (empty($value)) {
+			$this->error('翻译文本为空');
+		}
+		if (empty($code)) {
+			$this->error('翻译类型为空');
+		}
+		if ($code == 'zh') {
+			$this->success($value, '');
+		}
+		$languageList = make('App/Services/LanguageService')->getInfoCache();
+		$languageList = array_column($languageList, 'tr_code', 'code');
+		$trCode = $languageList[$code];
+		$result = make('App\Services\TranslateService')->getTranslate($value, $trCode);
+		$this->success($result, '');
 	}
 }

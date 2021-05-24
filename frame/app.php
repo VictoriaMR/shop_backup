@@ -16,7 +16,7 @@ class App
 		//初始化方法
 		self::init();
         //注册异常处理
-        \frame\Error::register();
+        // \frame\Error::register();
 		//解析路由
         Router::analyze();
 		return self::instance();
