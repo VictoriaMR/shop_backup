@@ -65,70 +65,71 @@ var POP_PAGE = {
 				link.type = 'text/css';
 				link.id = 'crawer_crawer_css';
 				head.appendChild(link);
-				var baycheerbody = POP_PAGE.init_baycheerbody(true);
+				var crawerbody = POP_PAGE.init_crawerbody(true);
 				if (domain == 'taobao.com') {
-					baycheerbody.style['z-index'] = '100000099';
-					baycheerbody.style.right = '45px';
+					crawerbody.style['z-index'] = '100000099';
+					crawerbody.style.right = '45px';
 				} else if (domain == 'tmall.com') {
-					baycheerbody.style.right = '5px';
+					crawerbody.style.right = '5px';
 				}
-				POP_PAGE.initContent();
+				POP_PAGE.init_content();
 			}
 		});
 	},
-	initContent: function() {
-		var baycheerbody = this.init_baycheerbody();
+	init_content: function() {
+		var crawerbody = this.init_crawerbody();
 		var html = `<div class="userinfo-content">`;
 					//重新刷新按钮
 					html += `<div class="crawer-reload">
-								<button onclick="POP_PAGE.reload_crawPage()">刷新</button>
+								<button onclick="POP_PAGE.reload_crawpage()">刷新</button>
 								<button id="crawer-show-btn">展开</button>
 								<button id="add-category">添加分类</button>
 							</div>`;
 				html += `</div>`;
-		baycheerbody.innerHTML += html;
+		crawerbody.innerHTML += html;
 		POP_PAGE.init_crawPage();
 	},
-	init_baycheerbody: function(empty) {
-		var baycheerbody = document.getElementById('baycheerbody');
-		if (baycheerbody === null) {
+	init_crawerbody: function(empty) {
+		var crawerbody = document.getElementById('crawerbody');
+		if (crawerbody === null) {
 			var body = document.getElementsByTagName('body')[0];
-			baycheerbody = document.createElement('div');
-			baycheerbody.id = 'baycheerbody';
-			body.appendChild(baycheerbody);
+			crawerbody = document.createElement('div');
+			crawerbody.id = 'crawerbody';
+			body.appendChild(crawerbody);
 		}
 		if (empty) {
-			baycheerbody.innerHTML = '';
+			crawerbody.innerHTML = '';
 		}
-		return baycheerbody;
+		return crawerbody;
 	},
-	reload_crawPage: function() {
+	reload_crawpage: function() {
 		//删除缓存
 		HELPER.request('delete_cache', '', {}, function() {
-			document.getElementById('baycheer_helper_crawer_js').remove();
-			document.getElementById('baycheer_helper_css').remove();
-			window.postMessage({ type: "reload_page_js"}, "*");
+			document.getElementById('crawer_crawer_js').remove();
+			document.getElementById('crawer_crawer_css').remove();
+			window.postMessage({ type: 'reload_page_js'}, "*");
 			return;
 		});
 	},
 	//错误信息
 	error_page: function(msg) {
-		var baycheerbody = this.init_baycheerbody();
+		var crawerbody = this.init_crawerbody();
 		var html = `<a href="javascript:location.reload();" class="error-msg">`+msg+`</a>`;
-		baycheerbody.innerHTML = html;
+		crawerbody.innerHTML = html;
 	},
 	//页面爬取信息
 	init_crawPage: function() {
 		var _this = this;
 		getCrawData(function(code, data, msg) {
 			if (code === 0) {
+				console.log(data, 'data')
 				HELPER.getCategory(function(category) {
 					_this.data = data;
-					var baycheerbody = _this.init_baycheerbody();
+					var crawerbody = _this.init_crawerbody();
 					var crawerPage = document.getElementById('crawer-page');
 					if (crawerPage === null) {
 						var html = '<div id="crawer-page" style="max-height:'+(window.innerHeight - 130)+'px;display:none;"></div>';
-						baycheerbody.innerHTML += html;
+						crawerbody.innerHTML += html;
 						crawerPage = document.getElementById('crawer-page')
 					}
 					if (data.sku) {
@@ -137,7 +138,7 @@ var POP_PAGE = {
 						html += `<div class="productAttLine">
 									<div class="label">网站标识:</div>
 									<div class="fillin">
-										<input type="text" disabled="disabled" value="`+domain.replace('.com', '')+`" />
+										<input type="text" value="`+domain.replace('.com', '')+`" />
 										<input type="hidden" name="bc_site_id" value="`+domain.replace('.com', '')+`" />
 									</div>
 									<div class="clear"></div>
@@ -145,7 +146,7 @@ var POP_PAGE = {
 								<div class="productAttLine">
 									<div class="label">产品ID:</div>
 									<div class="fillin">
-										<input type="text" disabled="disabled" value="`+data.item_id+`" />
+										<input type="text" value="`+data.item_id+`" />
 										<input type="hidden" name="bc_product_id" value="`+data.item_id+`" />
 									</div>
 									<div class="clear"></div>
@@ -165,39 +166,17 @@ var POP_PAGE = {
 								<div class="productAttLine">
 									<div class="label">产品名称:</div>
 									<div class="fillin">
-										<input name="bc_product_name" disabled="disabled" value="`+data.name+`" />
+										<input name="bc_product_name" value="`+data.name+`" />
 									</div>
 									<div class="clear"></div>
 								</div>
 								<div class="productAttLine">
 									<div class="label">产品URL:</div>
 									<div class="fillin">
-										<input disabled="disabled" value="`+data.product_url+`" />
-										<input type="hidden" name="bc_product_url" value="`+data.product_url+`" />
+										<input type="text" name="bc_product_url" value="`+data.product_url+`" />
 									</div>
 									<div class="clear"></div>
 								</div>`;
-						if (data.attr) {
-							for (var i in data.attr) {
-								var attr_text = '';
-								var count = 0;
-								for (var j in data.attr[i].attrValue) {
-									if (count > 0) {
-										attr_text += ',';
-									}
-									attr_text += data.attr[i].attrValue[j].name;
-									count ++;
-								}
-								html += `<div class="productAttLine">
-											<div class="label">`+data.attr[i].attrName+`:</div>
-											<input type="hidden" disabled="disabled" value="`+data.attr[i].attrName+`" name="bc_product_attr[`+i+`][name]"/>
-											<div class="fillin">
-												<input class="bc_product_name" disabled="disabled" value="`+attr_text+`" name="bc_product_attr[`+i+`][value]"/>
-											</div>
-											<div class="clear"></div>
-										</div>`;
-							}
-						}
 						if (data.multi_sku) {
 							//sku
 							html += `<div class="productAttLine">
@@ -206,7 +185,7 @@ var POP_PAGE = {
 							var count = 0;
 							for (var i in data.sku) {
 								html += `<div class="sku-item flex">
-											<div class="cancel-btn" style="display:none;">x</div>
+											<div class="cancel-btn">x</div>
 											<div class="flex w100">`;
 								html += `<div class="sku_img">`;
 								if (data.sku[i].sku_img) {
@@ -224,14 +203,14 @@ var POP_PAGE = {
 												if (data.sku[i].pvs.length) {
 													for (var j =0;j < data.sku[i].pvs.length; j++) {
 														html += `<div>
-																	<input disabled="disabled" name="bc_sku[`+count+`][attr][`+j+`][text]" value="`+data.sku[i].pvs[j].text+`"/>
+																	<input name="bc_sku[`+count+`][attr][`+j+`][text]" value="`+data.sku[i].pvs[j].text+`"/>
 																	<input type="hidden" name="bc_sku[`+count+`][attr][`+j+`][img]" value="`+data.sku[i].pvs[j].img+`"/>
 																</div>`;
 													}
 												} else {
 													for (var j in  data.sku[i].pvs) {
 														html += `<div>
-																	<input disabled="disabled" name="bc_sku[`+count+`][attr][`+j+`][text]" value="`+data.sku[i].pvs[j].text+`"/>
+																	<input name="bc_sku[`+count+`][attr][`+j+`][text]" value="`+data.sku[i].pvs[j].text+`"/>
 																	<input type="hidden" name="bc_sku[`+count+`][attr][`+j+`][img]" value="`+data.sku[i].pvs[j].img+`"/>
 																</div>`;
 													}
@@ -239,8 +218,8 @@ var POP_PAGE = {
 									html += `</div></div>`;
 								}
 								html += `<div class="flex price-stock">
-											<div style="margin-right: 12px;">价格: <input disabled="disabled" name="bc_sku[`+count+`][price]" value="`+data.sku[i].price+`"/></div>
-											<div>库存: <input disabled="disabled" name="bc_sku[`+count+`][stock]" value="`+data.sku[i].stock+`"/></div>
+											<div style="margin-right: 12px;">价格: <input name="bc_sku[`+count+`][price]" value="`+data.sku[i].price+`"/></div>
+											<div>库存: <input name="bc_sku[`+count+`][stock]" value="`+data.sku[i].stock+`"/></div>
 										</div>
 									</div>
 								</div></div>`;
@@ -252,12 +231,12 @@ var POP_PAGE = {
 										<div class="picTitle" style="margin-bottom: 0px;">SKU：</div>
 										<div class="pdtPicHere">`;
 							html += `<div class="sku-item flex">
-										<div class="cancel-btn" style="display:none;">x</div>
+										<div class="cancel-btn">x</div>
 										<div class="flex w100">`;
 							html += `<div class="sku_img">`;
 							if (data.sku.sku_img) {
 								html += `<img src="`+data.sku.sku_img+`">
-										<input type="hidden" name="bc_sku[0][img]" value="`+data.sku.sku_img+`"/>`;
+										<input type="hidden" name="bc_sku[`+count+`][img]" value="`+data.sku.sku_img+`"/>`;
 							}
 							html += `</div>`;
 							if (data.sku.pvs) {
@@ -270,23 +249,23 @@ var POP_PAGE = {
 											if (data.sku.pvs.length) {
 												for (var j =0;j < data.sku.pvs.length; j++) {
 													html += `<div>
-																<input disabled="disabled" name="bc_sku[`+count+`][attr][`+j+`][text]" value="`+data.sku.pvs[j].text+`"/>
-																<input type="hidden" name="bc_sku[0][attr][`+j+`][img]" value="`+data.sku.pvs[j].img+`"/>
+																<input name="bc_sku[`+count+`][attr][`+j+`][text]" value="`+data.sku.pvs[j].text+`"/>
+																<input type="hidden" name="bc_sku[`+count+`][attr][`+j+`][img]" value="`+data.sku.pvs[j].img+`"/>
 															</div>`;
 												}
 											} else {
 												for (var j in  data.sku.pvs) {
 													html += `<div>
-																<input disabled="disabled" name="bc_sku[0][attr][`+j+`][text]" value="`+data.sku.pvs[j].text+`"/>
-																<input type="hidden" name="bc_sku[0][attr][`+j+`][img]" value="`+data.sku.pvs[j].img+`"/>
+																<input name="bc_sku[`+count+`][attr][`+j+`][text]" value="`+data.sku.pvs[j].text+`"/>
+																<input type="hidden" name="bc_sku[`+count+`][attr][`+j+`][img]" value="`+data.sku.pvs[j].img+`"/>
 															</div>`;
 												}
 											}
 								html += `</div></div>`;
 							}
 							html += `<div class="flex price-stock">
-										<div style="margin-right: 12px;">价格: <input disabled="disabled" name="bc_sku[0][price]" value="`+data.sku.price+`"/></div>
-										<div>库存: <input disabled="disabled" name="bc_sku[0][stock]" value="`+data.sku.stock+`"/></div>
+										<div style="margin-right: 12px;">价格: <input name="bc_sku[`+count+`][price]" value="`+data.sku.price+`"/></div>
+										<div>库存: <input name="bc_sku[`+count+`][stock]" value="`+data.sku.stock+`"/></div>
 									</div>
 								</div>
 							</div></div>`;
@@ -301,8 +280,7 @@ var POP_PAGE = {
 							for (var i = 0; i < data.pdt_picture.length; i++) {
 								html += `<img class="imgList" src="`+data.pdt_picture[i]+`" />`;
 							}
-							html += `</div>
-									</div>`;
+							html += `</div></div>`;
 						}
 						if (data.des_picture) {
 							html += `<div class="clear"></div>
@@ -313,14 +291,29 @@ var POP_PAGE = {
 							for (var i = 0; i < data.des_picture.length; i++) {
 								html += `<img class="imgList" src="`+data.des_picture[i]+`" />`;
 							}
-							html += `</div>
-									</div>`;
+							html += `</div></div>`;
+						}
+						if (data.des_text) {
+							html += `<div class="clear"></div>
+									<div class="productMainPic">
+										<div class="picTitle">产品描述属性：</div>
+										<div id="pdt_des_text">`;
+							let count = 0
+							for (const i in data.des_text) {
+								html += `<div class="sku-attr">
+											<input type="text" name="bc_sku[des_text][`+count+`][key]" value="`+i+`"> - 
+											<input type="text" name="bc_sku[des_text][`+count+`][value]" value="`+data.des_text[i]+`">
+											<div class="cancel-btn">x</div>
+										</div>`;
+								count ++;
+							}
+							html += `</div></div>`;
 						}
 						html += '</form>';
 						crawerPage.innerHTML = html;
 						if (document.getElementById('postProduct-btn') === null) {
 							html = `<div class="postProduct" id="postProduct-btn">上传产品</div>`;
-							baycheerbody.innerHTML += html;
+							crawerbody.innerHTML += html;
 						}
 						_this.init_crawpage_show(localStorage.crawpage_show_status);
 						_this.init_click();
@@ -328,7 +321,7 @@ var POP_PAGE = {
 						html = `<div class="tc">
 									<a href="javascript:location.reload();" class="error-msg">获取产品信息失败, 请刷新重试</a>
 								</div>`;
-						baycheerbody.innerHTML += html;
+						crawerbody.innerHTML += html;
 					}
 				});
 			} else {
@@ -368,20 +361,11 @@ var POP_PAGE = {
 				return false;
 			}
 			var param = POP_PAGE.serializeForm(document.getElementById('crawer_form'));
-			this.innerHTML = '数据发送中...';
-			this.classList.add('loading');
 			var _thisobj = this;
-			var temp_param = {};
-			var category = '';
-			for (var i in param) {
-				if (i.substring(0, 19) == 'bc_product_category') {
-					if (param[i])
-						category += param[i]+',';
-				}
-			}
-			temp_param.form_page = {bc_product_category: category, bc_site_id: param.bc_site_id};
-			temp_param.form_crawer = _this.data;
-			HELPER.request('request_api', 'product/create', temp_param, function(res) {
+			_thisobj.innerHTML = '数据发送中...';
+			_thisobj.classList.add('loading');
+			console.log(param, 'param');
+			HELPER.request('request_api', 'product/create', param, function(res) {
 				_thisobj.classList.remove('loading');
 				_thisobj.innerHTML = '上传产品';
 				console.log(res, 'res')
@@ -409,6 +393,15 @@ var POP_PAGE = {
 				}
 			}
 		}
+		var obj = document.getElementById('pdt_des_text');
+		if (obj) {
+			tobj = obj.querySelectorAll('.sku-attr .close');
+			for (var i = 0; i < tobj.length; i++) {
+				tobj[i].onclick = function(event) {
+					this.parentNode.removeChild(this);
+				}
+			}
+		}
 		// sku 点击删除
 		var skuCancelObj = document.getElementsByClassName('cancel-btn');
 		if (skuCancelObj) {
@@ -433,18 +426,17 @@ var POP_PAGE = {
 		}
 		//添加分类
 		document.getElementById('add-category').onclick = function() {
-			var length = document.querySelectorAll('#category .productAttLine').length;
-			var html = `<div class="productAttLine">
-							<div class="label">产品分类:</div>
+			let div = document.createElement('div');
+			div.setAttribute('class', 'productAttLine');
+			div.innerHTML = `<div class="label">产品分类:</div>
 							<div class="fillin">
-								<select name="bc_product_category_`+length+`">
+								<select name="bc_product_category[]">
 									<option value="">请选择分类</option>
 									`+_this.categoryHtml+`
 								</select>
 							</div>
-							<div class="clear"></div>
-						</div>`;
-			document.getElementById('category').innerHTML += html;
+							<div class="clear"></div>`;
+			document.getElementById('category').appendChild(div);
 		}
 	},
 	serializeForm: function(formobj) {

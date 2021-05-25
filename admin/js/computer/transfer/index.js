@@ -18,6 +18,21 @@ const TRANSFER = {
 				TRANSFER.initModel(data);
 			});
 		});
+		//保存按钮
+		$('#dealbox .btn.save').on('click', function(){
+			const value = $('#dealbox [name="value"]').val();
+			if (value === '') {
+				errorTips('翻译不能为空');
+				return false;
+			}
+			const _thisobj = $(this);
+			_thisobj.button('loading');
+			post(URI+'transfer', $('#dealbox form').serializeArray(), function(data) {
+				window.location.reload();
+			}, function(){
+				_thisobj.button('reset');
+			});
+		});
 		//自动翻译
 		$('#dealbox .glyphicon-transfer').on('click', function(){
 			const _thisobj = $(this);

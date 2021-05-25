@@ -50,6 +50,7 @@
 	    	<button type="button" class="close" aria-hidden="true">&times;</button>
 	        <div class="f24 dealbox-title">编辑翻译&nbsp;<span class="glyphicon glyphicon-transfer f16" title="自动翻译"></span></div>
 	    	<input type="hidden" class="form-control" name="tran_id" value="0">
+	    	<input type="hidden" name="opn" value="editInfo">
 	    	<input type="hidden" class="form-control" name="type" value="">
 	        <input type="hidden" class="form-control" name="name" value="">
 	        <div class="input-group">

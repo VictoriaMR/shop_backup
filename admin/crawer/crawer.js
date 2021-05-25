@@ -210,7 +210,11 @@ function get1688(callback){
         ret_data[i]=supplier_data[i];
     }
     //发起请求在请求内容中提取图片
-    get1688DesPic(callback,ret_data);
+    get1688DesPic(function(data) {
+        get1688DescText(function(data){
+            callback(0, data, '获取成功');
+        }, data);
+    },ret_data);
 }
 function get1688AttrNameAndImg(attrValue,attr){
     for(let k in attr){
@@ -514,7 +518,7 @@ function get1688DesPic(callback,data){
                 }
             }
             data['des_picture']=des_picture;
-            callback(0,data,'获取成功!')
+            callback(data)
         };
     }else{
         //已经加载过 不重复加载
@@ -529,9 +533,30 @@ function get1688DesPic(callback,data){
             data['des_picture']=des_picture;
         }
         data['des_picture']=des_picture;
-        callback(0,data,'获取成功!')
+        callback(data);
     }
 }
+
+function get1688DescText(callback, data) {
+    const obj = document.querySelectorAll('.obj-content table td');
+    let desc = {};
+    if (obj) {
+        let key = '';
+        for (const i in obj) {
+            const html = obj[i].innerHTML;
+            if (html) {
+                if(html.indexOf('de-value') > 0) {
+                    desc[key] = obj[i].innerText;
+                } else {
+                    key = html;
+                }
+            }
+        }
+    }
+    data.des_text = desc;
+    callback(data);
+}
+
 //过滤一些占位图
 function filterIgnoreDesPic(src){
     var ignore=["img.taobao.com","ma.m.1688.com","amos.alicdn.com","alisoft.com","add_to_favorites.htm","img.alicdn.com/NewGualianyingxiao","assets.alicdn.com/kissy/1.0.0/build/imglazyload/spaceball.gif"];
@@ -541,5 +566,4 @@ function filterIgnoreDesPic(src){
         }
     }
     return true;
-
 }

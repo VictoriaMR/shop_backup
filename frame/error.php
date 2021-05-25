@@ -25,6 +25,7 @@ class Error
 
     public static function exception_debug($exception)
     {
+    	// dd($exception);
     	self::error_echo($exception->getFile(), $exception->getLine(), $exception->getMessage());
     }
 

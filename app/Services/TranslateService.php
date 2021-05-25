@@ -52,35 +52,45 @@ class TranslateService extends BaseService
     {
         if (empty($name)) return '';
     	$code = \frame\Session::get('site_language_name');
-        $cacheKey = 'SITE_TRANSLATE_TEXT_'.strtoupper($code);
+        $cacheKey = self::CACHE_KEY.strtoupper($code);
         //获取缓存中对应的翻译文本
     	$info = redis(1)->hget($cacheKey, $name);
     	if (empty($info)) {
             //检查文本
             $value = $this->setNotExist($name, $code);
-            if (utf8len($value) > 1) {
+            if (empty($value)) {
+                return $name;
+            } else {
             	redis(1)->hset($cacheKey, $name, $value);
             	return $value;
             }
-            return $name;
     	}
     	return $info;
     }
 
-    protected function setNotExist($name, $code, $value='')
+    public function setNotExist($name, $code, $value='')
     {
-    	$value = $this->isExistName($name, $code);
-        if (!empty($value)) {
-        	return $value;
+    	$result = $this->isExistName($name, $code);
+        if (empty($result)) {
+            $data = [
+                'name' => $name,
+                'type' => $code, 
+            ];
+            if (!empty($value)) {
+                $data['value'] = trim($value);
+                $cacheKey = self::CACHE_KEY.strtoupper($code);
+                redis(1)->hset($cacheKey, $name, $value);
+            }
+            return $this->baseModel->insert($data);
+        } else {
+            if (empty($value)) {
+                return $result;
+            } else {
+                $cacheKey = self::CACHE_KEY.strtoupper($code);
+                redis(1)->hset($cacheKey, $name, $value);
+                return $this->baseModel->where(['name'=>$name, 'type'=>$code])->update(['value'=>$value]);
+            }
         }
-        $data = [
-            'name' => $name,
-            'type' => $code, 
-        ];
-        if (!empty($value)) {
-            $data['value'] = trim($value);
-        }
-        return $this->baseModel->insert($data);
     }
 
     protected function isExistName($name, $code)

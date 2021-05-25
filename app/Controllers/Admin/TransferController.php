@@ -98,4 +98,26 @@ class TransferController  extends Controller
 		$result = make('App\Services\TranslateService')->getTranslate($value, $trCode);
 		$this->success($result, '');
 	}
+
+	protected function editInfo()
+	{
+		$name = trim(ipost('name'));
+		$value = trim(ipost('value'));
+		$type = trim(ipost('type'));
+		if (empty($name)) {
+			$this->error('翻译标本为空');
+		}
+		if (empty($value)) {
+			$this->error('翻译文本为空');
+		}
+		if (empty($type)) {
+			$this->error('翻译类型为空');
+		}
+		$result = make('App\Services\TranslateService')->setNotExist($name, $type, $value);
+		if ($result) {
+			$this->success('操作成功');
+		} else {
+			$this->error('操作失败');
+		}
+	}
 }
