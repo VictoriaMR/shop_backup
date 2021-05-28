@@ -9,11 +9,6 @@ class ProductIntroduce extends BaseModel
     //表名
     protected $_table = 'product_introduce';
 
-    public function create(array $data) 
-    {
-    	return $this->insert($data);
-    }
-
     public function getInfoBySpuId($spuId)
     {
         $info = $this->where(['spu_id'=>(int)$spuId])->field('attach_id')->orderBy('sort', 'asc')->get();

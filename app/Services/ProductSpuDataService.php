@@ -21,11 +21,11 @@ class ProductSpuDataService extends BaseService
 
 	public function create(array $data)
 	{
-		return $this->baseModel->insert($data);
+		return $this->baseModel->insertGetId($data);
 	}
 
-	public function isExist($siteId, $itemId)
+	public function isExist(array $where)
 	{
-		return $this->baseModel->isExist($siteId, $itemId);
+		return $this->baseModel->getCount($where) > 0;
 	}
 }

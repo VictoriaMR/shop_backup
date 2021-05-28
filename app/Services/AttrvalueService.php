@@ -17,29 +17,24 @@ class AttrvalueService extends BaseService
             return false;
         }
         $nameZh = trim($nameZh);
-        $translateService = make('App\Services\TranslateService');
-        $nameEn = $translateService->getTranslate($nameZh);
-        if (empty($nameEn)) $nameEn = $nameZh;
-        $nameEn = ucfirst($nameEn);
-        $info = $this->getInfoByName($nameEn);
+        $info = $this->getInfoByName($nameZh);
         if (!empty($info)) {
-            $info['name_zh'] = $nameZh;
-            return $info;
+            return $info['attv_id'];
         }
         $data = [
-            'name' => $nameEn,
+            'name' => $nameZh,
             'sort' => 0,
         ];
+        $translateService = make('App\Services\TranslateService');
         $attvId = make('App\Models\Attrvalue')->create($data);
         //设置多语言
         $attrLanModel = make('App\Models\AttrvalueLanguage');
         $lanList = make('App\Services\LanguageService')->getInfoCache();
         foreach ($lanList as $key => $value) {
-            if ($value['code'] == 'en') continue;
-            if ($value['code'] != 'zh') {
+            if ($value['code'] == 'zh') {
                 $name = $nameZh;
             } else {
-                $name = $translateService->getTranslate($nameZh, $value['code']);
+                $name = $translateService->getTranslate($nameZh, $value['tr_code']);
             }
             $insert = [
                 'attv_id' => $attvId,

@@ -48,7 +48,6 @@ var POP_PAGE = {
 	init: function() {
 		var _this = this;
 		HELPER.getVersion(function(version) {
-			console.log(version, 'version')
 			var head = document.getElementsByTagName('head')[0];
 			var script = document.createElement('script');
 			script.src = common_url+'crawer/crawer.js?version='+version;
@@ -123,8 +122,10 @@ var POP_PAGE = {
 		getCrawData(function(code, data, msg) {
 			if (code === 0) {
 				console.log(data, 'data')
-				HELPER.getCategory(function(category) {
-					_this.data = data;
+				_this.data = data;
+				HELPER.getData(function(cacheData) {
+					const category = cacheData.category;
+					const site = cacheData.site;
 					var crawerbody = _this.init_crawerbody();
 					var crawerPage = document.getElementById('crawer-page');
 					if (crawerPage === null) {
@@ -135,19 +136,29 @@ var POP_PAGE = {
 					if (data.sku) {
 						var bc_site_id = localStorage.bc_site_id || '';
 						html = '<form id="crawer_form">';
+						html += `<input type="hidden" name="bc_shop_name" value="`+data.shop_name+`" />
+								<input type="hidden" name="bc_shop_url" value="`+data.shop_url+`" />`;
 						html += `<div class="productAttLine">
-									<div class="label">网站标识:</div>
+									<div class="label">供应商:</div>
 									<div class="fillin">
-										<input type="text" value="`+domain.replace('.com', '')+`" />
-										<input type="hidden" name="bc_site_id" value="`+domain.replace('.com', '')+`" />
+										<input type="text" name="bc_site_id" value="`+domain.replace('.com', '')+`" />
 									</div>
 									<div class="clear"></div>
 								</div>
 								<div class="productAttLine">
 									<div class="label">产品ID:</div>
 									<div class="fillin">
-										<input type="text" value="`+data.item_id+`" />
-										<input type="hidden" name="bc_product_id" value="`+data.item_id+`" />
+										<input type="text" name="bc_product_id" value="`+data.item_id+`" />
+									</div>
+									<div class="clear"></div>
+								</div>
+								<div class="productAttLine">
+									<div class="label">站点:</div>
+									<div class="fillin">
+										<select name="bc_product_site">
+											<option value="">请选择站点</option>
+											`+_this.getSiteHtml(site)+`
+										</select>
 									</div>
 									<div class="clear"></div>
 								</div>
@@ -155,7 +166,7 @@ var POP_PAGE = {
 									<div class="productAttLine">
 										<div class="label">产品分类:</div>
 										<div class="fillin">
-											<select name="bc_product_category_0">
+											<select name="bc_product_category[0]">
 												<option value="">请选择分类</option>
 												`+_this.getCategoryHtml(category)+`
 											</select>
@@ -301,8 +312,8 @@ var POP_PAGE = {
 							let count = 0
 							for (const i in data.des_text) {
 								html += `<div class="sku-attr">
-											<input type="text" name="bc_sku[des_text][`+count+`][key]" value="`+i+`"> - 
-											<input type="text" name="bc_sku[des_text][`+count+`][value]" value="`+data.des_text[i]+`">
+											<input type="text" name="bc_des_text[`+count+`][key]" value="`+i+`"> - 
+											<input type="text" name="bc_des_text][`+count+`][value]" value="`+data.des_text[i]+`">
 											<div class="cancel-btn">x</div>
 										</div>`;
 								count ++;
@@ -338,18 +349,26 @@ var POP_PAGE = {
 			document.getElementById('crawer-show-btn').innerHTML = '展开';
 		}
 	},
-	getCategoryHtml: function(category) {
+	getSiteHtml: function(list) {
+		console.log(list, 'list')
+		let html = '';
+		for (let i = 0; i < list.length; i++) {
+			html += '<option value="'+list[i].site_id+'">'+list[i].name+'</option>';
+		}
+		return html;
+	},
+	getCategoryHtml: function(list) {
 		this.categoryHtml = '';
-		for (var i=0;i<category.length;i++) {
-			var padding = '';
-			for (var j = 0; j < category[i].level; j++) {
+		for (let i = 0; i < list.length; i++) {
+			let padding = '';
+			for (let j = 0; j < list[i].level; j++) {
 				padding += '&nbsp;&nbsp;&nbsp;';
 			}
-			var disabled = '';
-			if (category[i].level == 0) {
+			let disabled = '';
+			if (list[i].level == 0) {
 				disabled = 'disabled="disabled"';
 			}
-			this.categoryHtml += '<option '+disabled+' value="'+category[i].cate_id+'">'+padding+category[i].name+'</option>';
+			this.categoryHtml += '<option '+disabled+' value="'+list[i].cate_id+'">'+padding+list[i].name+'</option>';
 		}
 		return this.categoryHtml;
 	},
@@ -368,7 +387,6 @@ var POP_PAGE = {
 			HELPER.request('request_api', 'product/create', param, function(res) {
 				_thisobj.classList.remove('loading');
 				_thisobj.innerHTML = '上传产品';
-				console.log(res, 'res')
 			});
 		}
 		//图片按钮点击删除
@@ -426,11 +444,12 @@ var POP_PAGE = {
 		}
 		//添加分类
 		document.getElementById('add-category').onclick = function() {
+			const count = document.querySelectorAll('#category .productAttLine').length;
 			let div = document.createElement('div');
 			div.setAttribute('class', 'productAttLine');
 			div.innerHTML = `<div class="label">产品分类:</div>
 							<div class="fillin">
-								<select name="bc_product_category[]">
+								<select name="bc_product_category[`+count+`]">
 									<option value="">请选择分类</option>
 									`+_this.categoryHtml+`
 								</select>

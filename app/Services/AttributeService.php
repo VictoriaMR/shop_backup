@@ -17,17 +17,14 @@ class AttributeService extends BaseService
 			return false;
 		}
         $nameZh = trim($nameZh);
-        $translateService = make('App\Services\TranslateService');
-        $nameEn = $translateService->getTranslate($nameZh);
-        if (empty($nameEn)) $nameEn = $nameZh;
-        $nameEn = ucfirst($nameEn);
-        $info = $this->getInfoByName($nameEn);
+        $info = $this->getInfoByName($nameZh);
         if (!empty($info)) {
-            $info['name_zh'] = $nameZh;
-            return $info;
+            return $info['attr_id'];
         }
+
+        $translateService = make('App\Services\TranslateService');
         $data = [
-            'name' => $nameEn,
+            'name' => $nameZh,
             'sort' => 0,
         ];
         $attrId = make('App\Models\Attribute')->create($data);
@@ -35,11 +32,10 @@ class AttributeService extends BaseService
         $attrLanModel = make('App\Models\AttributeLanguage');
         $lanList = make('App\Services\LanguageService')->getInfoCache();
         foreach ($lanList as $key => $value) {
-            if ($value['code'] == 'en') continue;
-            if ($value['code'] != 'zh') {
+            if ($value['code'] == 'zh') {
                 $name = $nameZh;
             } else {
-                $name = $translateService->getTranslate($nameZh, $value['code']);
+                $name = $translateService->getTranslate($nameZh, $value['tr_code']);
             }
             $insert = [
             	'attr_id' => $attrId,
@@ -48,7 +44,7 @@ class AttributeService extends BaseService
             ];
             $attrLanModel->create($insert);
         }
-        return true;
+        return $attrId;
 	}
 
     public function getInfoByName($name)

@@ -25,6 +25,11 @@ class TranslateService extends BaseService
 		if ($to == $from) {
 			return $text;
 		}
+        $lanArr = make('App\Services\LanguageService')->getInfoCache();
+        $lanArr = array_column($lanArr, 'tr_code', 'code');
+        if (isset($lanArr[$to])) {
+            $to = $lanArr[$to];
+        }
 		$salt = time();
 		$data = [
 			'q' => $text,

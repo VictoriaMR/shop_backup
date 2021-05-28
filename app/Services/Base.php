@@ -50,6 +50,11 @@ class Base
         return $this->baseModel->getCount($where);
     }
 
+    public function getInfoByWhere(array $where=[])
+    {
+        return $this->baseModel->getInfoByWhere($where);
+    }
+
     public function getListByWhere(array $where=[], $field='*', $page=1, $size=20)
     {
         return $this->baseModel->getListByWhere($where, $field, $page, $size);

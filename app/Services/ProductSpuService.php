@@ -13,17 +13,33 @@ class ProductSpuService extends BaseService
 
 	public function create(array $data)
 	{
-		return make('App\Models\ProductSpu')->create($data);
+		return make('App\Models\ProductSpu')->insertGetId($data);
 	}
 
 	public function addSpuImage(array $data)
 	{
-		return make('App\Models\ProductSpuImage')->create($data);
+		$model = make('App\Models\ProductSpuImage');
+		if (!empty($data[0]) && is_array($data[0])) {
+			foreach ($data as $key => $value) {
+				if ($model->getCount($value)) {
+					unset($data[$key]);
+				}
+			}
+		}
+		return $model->insert($data);
 	}
 
 	public function addIntroduceImage(array $data)
 	{
-		return make('App\Models\ProductIntroduce')->create($data);
+		$model = make('App\Models\ProductIntroduce');
+		if (!empty($data[0]) && is_array($data[0])) {
+			foreach ($data as $key => $value) {
+				if ($model->getCount($value)) {
+					unset($data[$key]);
+				}
+			}
+		}
+		return $model->insert($data);
 	}
 
 	public function getInfoCache($spuId)

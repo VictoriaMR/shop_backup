@@ -14,11 +14,6 @@ class ProductSkuService extends BaseService
 		return make('App\Models\ProductSku')->create($data);
 	}
 
-	public function addSpuImage(array $data)
-	{
-		return make('App\Models\ProductSkuImage')->create($data);
-	}
-
 	public function addAttributeRelation(array $data)
 	{
 		return make('App\Models\ProductAttributeRelation')->create($data);
@@ -33,22 +28,6 @@ class ProductSkuService extends BaseService
 			$skuId = [$skuId];
 		}
 		return make('App\Models\ProductAttributeRelation')->whereIn('sku_id', $skuId)->orderBy('sort', 'asc')->get();
-	}
-
-	public function addImage(array $data)
-	{
-		return make('App\Models\ProductSkuImage')->create($data);
-	}
-
-	public function getInfoBySkuIds($skuId)
-	{
-		if (empty($skuId)) {
-			return false;
-		}
-		if (!is_array($skuId)) {
-			$skuId = [$skuId];
-		}
-		return make('App\Models\ProductSkuImage')->whereIn('sku_id', $skuId)->orderBy('sort', 'asc')->get();
 	}
 
 	public function getListBySpuId($spuId)

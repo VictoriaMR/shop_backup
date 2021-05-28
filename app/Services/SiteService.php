@@ -7,6 +7,7 @@ use App\Models\Site;
 
 class SiteService extends BaseService
 {
+    const CACHE_KEY = 'SITE_LIST_CACHE';
     public function __construct(Site $model)
     {
         $this->baseModel = $model;
@@ -30,5 +31,20 @@ class SiteService extends BaseService
             $where['value'] = $value;
             return $model->insert($where);
         }
+    }
+
+    public function getList()
+    {
+        return $this->baseModel->getListByWhere();
+    }
+
+    public function getListCache()
+    {
+        $list = redis()->get(self::CACHE_KEY);
+        if ($list === false) {
+            $list = $this->getList();
+            redis()->set(self::CACHE_KEY, $list, -1);
+        }
+        return $list;
     }
 }

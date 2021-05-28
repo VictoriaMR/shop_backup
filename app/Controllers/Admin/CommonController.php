@@ -16,6 +16,7 @@ class CommonController extends Controller
 		$data = [
 			'version' => '1.0.0',
 			'category' => make('App\Services\CategoryService')->getListFormat(),
+			'site' => make('App\Services\SiteService')->getList(),
 		];
 		$this->success($data);
 	}

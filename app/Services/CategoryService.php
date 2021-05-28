@@ -168,13 +168,17 @@ class CategoryService extends BaseService
     {
         if (empty($spuId) || empty($cateIds)) return false;
         $insert = [];
+        $model = make('App\Models\ProductCategoryRelation');
         foreach ($cateIds as $key => $value) {
-            $insert[] = [
+            $where = [
                 'cate_id' => $value,
                 'spu_id' => $spuId,
             ];
+            if (!$model->getCount($where)) {
+                $insert[] = $where;
+            }
         }
-        return make('App\Models\ProductCategoryRelation')->insert($insert);
+        return $model->insert($insert);
     }
 
     public function updateStat()

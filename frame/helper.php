@@ -18,7 +18,7 @@ function make($name)
 }
 function isAjax()
 {
-    return isset($_SERVER['HTTP_X_REQUESTED_WITH']) && strtolower($_SERVER['HTTP_X_REQUESTED_WITH']) == 'xmlhttprequest';
+    return input('is_ajax', 0);
 }
 function isMobile($mobile = '')
 {

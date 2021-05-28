@@ -9,13 +9,9 @@ class VerifyToken
     protected static $except = [
         'admin' => [
             'login' => true,
-            'common' => true,
-            'product' => true,
-            'api' => true,
         ],
-        'home' => [
+        'prettybag' => [
             'index' => true,
-            'api' => true,
             'login' => true,
         ],
     ];
@@ -25,18 +21,21 @@ class VerifyToken
         if (self::inExceptArray($request)) {
             return true;
         }
-        switch ($request['class']) {
-            case 'Admin':
-                $loginKey = 'admin_mem_id';
-                break;
-            case 'Home':
-                $loginKey = 'home_mem_id';
-                break;
+        if ($request['class'] == 'Admin') {
+            $loginKey = 'admin_mem_id';
+        } else {
+            $loginKey = 'home_mem_id';
         }
         //检查登录状态
-        if (!empty($loginKey) && empty(Session::get($loginKey))) {
+        if (empty(Session::get($loginKey))) {
             Session::set('callback_url', rtrim($_SERVER['REQUEST_URI'].'?'.$_SERVER['QUERY_STRING']), '?');
-            redirect(url('login'));
+            if (isAjax()) {
+                header('Content-Type:application/json; charset=utf-8');
+                echo json_encode(['code'=>'10001', 'data'=>'', 'message' => 'need login'], JSON_UNESCAPED_UNICODE);
+                exit();
+            } else {
+                redirect(url('login'));
+            }
         }
         return true;
     }
