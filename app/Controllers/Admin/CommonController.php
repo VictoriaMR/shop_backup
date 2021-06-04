@@ -11,7 +11,7 @@ class CommonController extends Controller
 		dd('error');
 	}
 
-	public function getCrawerData()
+	public function getCrawlerData()
 	{
 		$data = [
 			'version' => '1.0.0',

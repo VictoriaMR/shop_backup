@@ -18,7 +18,7 @@ function make($name)
 }
 function isAjax()
 {
-    return input('is_ajax', 0);
+    return input('isAjax', 0);
 }
 function isMobile($mobile = '')
 {
