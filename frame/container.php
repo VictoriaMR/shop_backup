@@ -16,8 +16,7 @@ final class Container
 
     public function autoload($concrete) 
     {
-        $concrete = self::make($concrete);
-        return $concrete;
+        return self::make($concrete);
     }
 
     private function make($concrete)
@@ -34,15 +33,13 @@ final class Container
         if ($concrete instanceof Closure) {
             return $concrete($this);
         }
-
         //创建反射对象
         $reflector = new \ReflectionClass($concrete);
-
         //函数是否可以实例化
         if (!$reflector->isInstantiable()) {
             return $concrete;
         }
-        
+        //获取构造器
         $constructor = $reflector->getConstructor();
         if (is_null($constructor)) {
             $object = new $concrete;
@@ -58,7 +55,7 @@ final class Container
     {
         $results = [];
         foreach ($dependencies as $dependency) {
-            if (is_null($dependency->getClass())) {
+            if (is_null($dependency->getType())) {
                 $results[] = $this->resolvedNonClass($dependency);
             } else {
                 $results[] = $this->resolvedClass($dependency);
@@ -79,6 +76,6 @@ final class Container
     //通过容器解决依赖
     private function resolvedClass(ReflectionParameter $parameter)
     {
-        return $this->make($parameter->getClass()->name);
+        return $this->make($parameter->getType()->getName());
     }
 }

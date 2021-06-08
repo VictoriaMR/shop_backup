@@ -61,26 +61,28 @@ class App
     {
         $abstract = strtr($abstract, '/', '\\');
         //容器加载
-        if (!empty(Container::$_building[$abstract])) {
-            return Container::$_building[$abstract];
-        }
-        $file = strtr($abstract, '\\', DS);
-        if (strpos($file, 'App') === 0) {
-            $file = lcfirst($file);
-        } else if (strpos($file, 'frame') !== false) {
-            $file = strtolower($file);
-        }
-        $file = ROOT_PATH.$file.'.php';
-        if (is_file($file)) {
-			require_once $file;
-        } else {
+        if (empty(Container::$_building[$abstract])) {
+            $file = strtr($abstract, '\\', DS);
+            if (strpos($file, 'frame') === false) {
+                $file = lcfirst($file);
+            } else {
+                $file = strtolower($file);
+            }
+            $file = ROOT_PATH.$file.'.php';
+            if (is_file($file)) {
+    			require_once $file;
+        		$rst = Container::getInstance()->autoload($abstract);
+                if ($rst !== false) {
+                    return $rst;
+                }
+            } 
             if (env('APP_DEBUG')) {
-                throw new \Exception($abstract.' was not exist!', 1);
+                throw new \Exception($file.' to autoload '.$abstract.' was failed!', 1);
             } else {
                 redirect(url());
             }
         }
-		return Container::getInstance()->autoload($abstract);
+        return Container::$_building[$abstract];
     }
 
     public static function make($abstract)

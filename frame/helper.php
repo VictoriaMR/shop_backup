@@ -7,9 +7,12 @@ function dd(...$arg)
     }
     exit();
 }
-function vv($data = '') 
+function vv(...$arg) 
 {
-    var_dump($data);
+    foreach ($arg as $value) {
+       var_dump($value);
+       echo '<br />';
+    }
     exit();
 }
 function make($name)
