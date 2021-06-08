@@ -158,9 +158,9 @@ Class Query
 					$value[$k] = (int) $v;
 				}
 			}
-			return implode(', ', $value);
+			return implode(',', $value);
 		}, $data);
-		$sql = sprintf('INSERT INTO %s (%s) VALUES %s', $this->_table, implode(',', $fields), '(' . implode('), (', $data).')');
+		$sql = sprintf('INSERT INTO %s (%s) VALUES %s', $this->_table, '`'.implode('`,`', $fields).'`', '(' . implode('), (', $data).')');
 		return $this->getQuery($sql);
 	}
 
@@ -169,13 +169,13 @@ Class Query
 		if (empty($data)) return false;
 		$tempArr = [];
 		foreach ($data as $key => $value) {
-			$tempArr[] = $key.'='."'".addslashes($value)."'";
+			$tempArr[] = '`'.$key.'`'.'='."'".addslashes($value)."'";
 		}
 		$this->analyzeWhere();
 		if (!empty($this->_whereString)){
-			$sql = sprintf('UPDATE %s SET %s WHERE %s', $this->_table, implode(', ', $tempArr), $this->_whereString);
+			$sql = sprintf('UPDATE %s SET %s WHERE %s', $this->_table, implode(',', $tempArr), $this->_whereString);
 		} else{
-			$sql = sprintf('UPDATE %s SET %s', $this->_table, implode(', ', $tempArr));
+			$sql = sprintf('UPDATE %s SET %s', $this->_table, implode(',', $tempArr));
 		}
 		return $this->getQuery($sql);
 	}

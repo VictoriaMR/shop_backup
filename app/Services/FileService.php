@@ -20,12 +20,12 @@ class FileService
         $attachmentService = make('App\Services\AttachmentService');
         $data = $attachmentService->getAttachmentByName($name, 200);
         if (empty($data)) {
-            $path = ROOT_PATH . env('FILE_CENTER') . DS . $cate . DS;
+            $path = ROOT_PATH.env('FILE_CENTER').DS.$cate.DS;
             //创建目录
             if (!is_dir($path)) {
                 mkdir($path, 0777, true);
             }
-            $saveUrl = $path . $name . '.' . $ext;
+            $saveUrl = $path.$name.'.'.$ext;
             $result = move_uploaded_file($file['tmp_name'], $saveUrl);
             if (!$result) {
                 return false;
@@ -44,7 +44,7 @@ class FileService
             if ($thumb) {
                 $thumb = ['600', '400', '200'];
                 foreach ($thumb as $value) {
-                    $to = $path . $name . DS . $value . '.' . $ext;
+                    $to = $path.$name.DS.$value.'.'.$ext;
                     $imageService->thumbImage($saveUrl, $to, $value, $value);
                 }
             }
@@ -58,18 +58,22 @@ class FileService
         if (!in_array($cate, self::FILE_TYPE)) return false;
         //生成临时文件
         $ext = pathinfo($url, PATHINFO_EXTENSION);
-        $tempName = ROOT_PATH.env('FILE_CENTER').DS.\frame\Str::getUniqueName().'.'.$ext;
+        $dir = ROOT_PATH.env('FILE_CENTER').DS;
+        if (!is_dir($dir)) {
+            mkdir($dir, 0777, true);
+        }
+        $tempName = $dir.\frame\Str::getUniqueName().'.'.$ext;
         if (file_put_contents($tempName, file_get_contents($url))) {
             $name = md5_file($tempName);
             $attachmentService = make('App\Services\AttachmentService');
             $data = $attachmentService->getAttachmentByName($name);
             if (empty($data)) {
-                $path = ROOT_PATH . env('FILE_CENTER') . DS . $cate . DS;
+                $path = $dir.$cate.DS;
                 //创建目录
                 if (!is_dir($path)) {
                     mkdir($path, 0777, true);
                 }
-                $file = $path . $name . '.' . $ext;
+                $file = $path.$name.'.'.$ext;
                 //存入压缩文件
                 $imageService = make('App\Services\ImageService');
                 $imageService->compressImg($tempName, $file);
@@ -85,7 +89,7 @@ class FileService
                 if ($thumb) {
                     $thumb = ['600', '400', '200'];
                     foreach ($thumb as $value) {
-                        $to = $path . $name . DS . $value . '.' . $ext;
+                        $to = $path.$name.DS.$value.'.'.$ext;
                         $imageService->thumbImage($file, $to, $value, $value);
                     }
                 }

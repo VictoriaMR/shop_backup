@@ -338,7 +338,7 @@ const POP_PAGE = {
 			_thisobj.innerHTML = '数据发送中...';
 			_thisobj.classList.add('loading');
 			console.log(param, 'param');
-			HELPER.request({action: 'request', value: 'product/create', param:param}, function(res) {
+			HELPER.request({action: 'request', value: 'api/addProduct', param:param}, function(res) {
 				_thisobj.classList.remove('loading');
 				_thisobj.innerHTML = '上传产品';
 			});
