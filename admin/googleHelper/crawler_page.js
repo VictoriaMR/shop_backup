@@ -19,7 +19,6 @@ const POP_PAGE = {
 	init: function() {
 		const _this = this;
 		HELPER.request({action: 'requestCache', value: 'common/getCrawlerData', cache_key: 'crawler_data_cache'}, function(res) {
-			console.log(res, 'res')
 			if (res.code === 200 || res.code === '200') {
 				let head,content;
 				head = document.getElementsByTagName('head')[0];
@@ -27,6 +26,7 @@ const POP_PAGE = {
 				content.src = common_url+'googleHelper/crawler.js?version='+res.data.version;
 				content.type = 'text/javascript';
 				content.id = 'googleHelper_crawler_js';
+				content.charset = 'utf-8';
 				head.appendChild(content);
 				content.onload=content.onreadystatechange=function() {
 					head = document.getElementsByTagName('head')[0];
@@ -34,14 +34,15 @@ const POP_PAGE = {
 					content.href = common_url+'googleHelper/crawler.css?version='+res.data.version;
 					content.rel = 'stylesheet';
 					content.type = 'text/css';
+					content.charset = 'utf-8';
 					content.id = 'googleHelper_crawler_css';
 					head.appendChild(content);
-					let crawlerBody = _this.init_crawlerBody(true);
+					let crawlerPage = _this.init_crawlerPage();
 					if (domain === 'taobao.com') {
-						crawlerBody.style['z-index'] = '100000099';
-						crawlerBody.style.right = '45px';
+						crawlerPage.style['z-index'] = '100000099';
+						crawlerPage.style.right = '45px';
 					} else if (domain === 'tmall.com') {
-						crawlerBody.style.right = '5px';
+						crawlerPage.style.right = '5px';
 					}
 					_this.init_content(res.data);
 				}
@@ -49,36 +50,35 @@ const POP_PAGE = {
 		});
 	},
 	init_content: function(data) {
-		let crawlerBody = this.init_crawlerBody();
-		let html = `<div class="userInfo-content">
-						<div class="crawler-reload">
-							<button onclick="POP_PAGE.reload_crawlerPage()">刷新</button>
-							<button id="crawler-show-btn">展开</button>
-							<button id="add-category">添加分类</button>
-						</div>
-					</div>`;
-		crawlerBody.innerHTML += html;
+		let crawlerPage = this.init_crawlerPage();
+		let html = '<div class="userinfo-content">\
+						<div class="crawler-reload">\
+							<button onclick="POP_PAGE.reload_crawlerPage()">刷新</button>\
+							<button id="crawler-show-btn">展开</button>\
+							<button id="add-category">添加分类</button>\
+						</div>\
+					</div>';
+		crawlerPage.innerHTML += html;
 		POP_PAGE.init_crawPage(data);
 	},
-	init_crawlerBody: function(empty) {
-		let crawlerBody = document.getElementById('crawler_body');
-		if (!crawlerBody) {
-			let body = document.getElementsByTagName('body')[0];
-			crawlerBody = document.createElement('div');
-			crawlerBody.id = 'crawler_body';
-			body.appendChild(crawlerBody);
+	init_crawlerPage: function() {
+		let crawlerPage = document.getElementById('crawler_page');
+		if (crawlerPage) {
+			return crawlerPage;
 		}
-		if (empty) {
-			crawlerBody.innerHTML = '';
-		}
-		return crawlerBody;
+		let body = document.getElementsByTagName('body')[0];
+		crawlerPage = document.createElement('div');
+		crawlerPage.id = 'crawler_page';
+		body.appendChild(crawlerPage);
+		return document.getElementById('crawler_page');
 	},
 	reload_crawlerPage: function() {
 		//删除缓存
-		HELPER.request('delete_cache', '', {}, function() {
+		HELPER.request({action: 'delCache', cache_key: 'crawler_data_cache'}, function() {
 			document.getElementById('googleHelper_crawler_js').remove();
 			document.getElementById('googleHelper_crawler_css').remove();
-			window.postMessage({ type: 'reload_page_js'}, "*");
+			window.postMessage({ type: 'reload_page_css', value: 'googleHelper/crawler.css'}, "*");
+			window.postMessage({ type: 'reload_page_js', value: 'googleHelper/crawler.js'}, "*");
 		});
 	},
 	//页面爬取信息
@@ -88,12 +88,7 @@ const POP_PAGE = {
 			if (code === 0) {
 				const category = info.category;
 				const site = info.site;
-				let crawlerBody = _this.init_crawlerBody();
-				let crawlerPage = document.getElementById('crawler-page');
-				if (!crawlerPage) {
-					crawlerBody.innerHTML += '<div id="crawler-page" style="max-height:' + (window.innerHeight - 130) + 'px;display:none;"></div>';
-					crawlerBody = document.getElementById('crawler-page');
-				}
+				let crawlerPage = _this.init_crawlerPage();
 				if (data.sku) {
 					let html = `<form id="crawler_form">
 									<input type="hidden" name="bc_shop_name" value="` + data.shop_name + `" />
@@ -213,10 +208,10 @@ const POP_PAGE = {
 						if (data.sku.pvs) {
 							html += '<div class="flex1">';
 							html += `<div class="flex">
-												<div style="width:32px;">
-												<span>属性:</span>
-											</div>
-											<div class="flex1 sku-attr">`;
+										<div style="width:32px;">
+										<span>属性:</span>
+									</div>
+									<div class="flex1 sku-attr">`;
 							if (data.sku.pvs.length) {
 								for (let j=0;j<data.sku.pvs.length;j++) {
 									html += `<div>
@@ -272,27 +267,27 @@ const POP_PAGE = {
 						let count = 0
 						for (const i in data.des_text) {
 							html += `<div class="sku-attr">
-												<input type="text" name="bc_des_text[` + count + `][key]" value="` + i + `"> - 
-												<input type="text" name="bc_des_text][` + count + `][value]" value="` + data.des_text[i] + `">
-												<div class="cancel-btn">x</div>
-											</div>`;
+										<input type="text" name="bc_des_text[` + count + `][key]" value="` + i + `"> - 
+										<input type="text" name="bc_des_text][` + count + `][value]" value="` + data.des_text[i] + `">
+										<div class="cancel-btn">x</div>
+									</div>`;
 							count++;
 						}
 						html += `</div></div>`;
 					}
 					html += '</form>';
-					crawlerPage.innerHTML = html;
+					crawlerPage.innerHTML += html;
 					if (document.getElementById('postProduct-btn') === null) {
 						html = `<div class="postProduct" id="postProduct-btn">上传产品</div>`;
-						crawlerBody.innerHTML += html;
+						crawlerPage.innerHTML += html;
 					}
-					_this.init_crawpage_show(localStorage.crawpage_show_status);
+					_this.init_crawlerPageShow(localStorage.crawpage_show_status);
 					_this.init_click();
 				} else {
 					let html = `<div class="tc">
 									<a href="javascript:location.reload();" class="error-msg">获取产品信息失败, 请刷新重试</a>
 								</div>`;
-					crawlerBody.innerHTML += html;
+					crawlerPage.innerHTML += html;
 				}
 			} else {
 				HELPER.request({action: 'alert', value: msg});
@@ -301,10 +296,10 @@ const POP_PAGE = {
 	},
 	init_crawlerPageShow: function(status) {
 		if (status === '1') {
-			document.getElementById('crawler-page').style.display = 'block';
+			document.getElementById('crawler_form').style.display = 'block';
 			document.getElementById('crawler-show-btn').innerHTML = '收起';
 		} else {
-			document.getElementById('crawler-page').style.display = 'none';
+			document.getElementById('crawler_form').style.display = 'none';
 			document.getElementById('crawler-show-btn').innerHTML = '展开';
 		}
 	},
@@ -324,7 +319,7 @@ const POP_PAGE = {
 				padding += '&nbsp;&nbsp;&nbsp;';
 			}
 			let disabled = '';
-			if (list[i].level == 0) {
+			if (list[i].level === 0) {
 				disabled = 'disabled="disabled"';
 			}
 			this.categoryHtml += '<option '+disabled+' value="'+list[i].cate_id+'">'+padding+list[i].name+'</option>';
@@ -338,21 +333,21 @@ const POP_PAGE = {
 			if (this.className.indexOf('loading') !== -1) {
 				return false;
 			}
-			var param = POP_PAGE.serializeForm(document.getElementById('crawer_form'));
-			var _thisobj = this;
+			const param = POP_PAGE.serializeForm(document.getElementById('crawler_form'));
+			let _thisobj = this;
 			_thisobj.innerHTML = '数据发送中...';
 			_thisobj.classList.add('loading');
 			console.log(param, 'param');
-			HELPER.request('request_api', 'product/create', param, function(res) {
+			HELPER.request({action: 'request', value: 'product/create', param:param}, function(res) {
 				_thisobj.classList.remove('loading');
 				_thisobj.innerHTML = '上传产品';
 			});
 		}
 		//图片按钮点击删除
-		var obj = document.getElementById('pdt_picture');
+		let obj = document.querySelector('#pdt_picture');
 		if (obj) {
-			tobj = obj.getElementsByTagName('img');
-			for (var i = 0; i < tobj.length; i++) {
+			const tobj = obj.querySelectorAll('img');
+			for (let i = 0; i < tobj.length; i++) {
 				tobj[i].onclick = function(event) {
 					this.parentNode.removeChild(this)
 					POP_PAGE.initPdtImgValue(obj);
@@ -360,17 +355,17 @@ const POP_PAGE = {
 			}
 		}
 		//图片介绍图
-		var obj = document.getElementById('pdt_desc_picture');
+		obj = document.querySelector('#pdt_desc_picture');
 		if (obj) {
-			tobj = obj.getElementsByTagName('img');
-			for (var i = 0; i < tobj.length; i++) {
+			const tobj = obj.querySelectorAll('img');
+			for (let i = 0; i < tobj.length; i++) {
 				tobj[i].onclick = function(event) {
 					this.parentNode.removeChild(this)
 					POP_PAGE.initPdtImgValue(obj);
 				}
 			}
 		}
-		var obj = document.getElementById('pdt_des_text');
+		obj = document.querySelector('#pdt_des_text');
 		if (obj) {
 			tobj = obj.querySelectorAll('.sku-attr .close');
 			for (var i = 0; i < tobj.length; i++) {
@@ -380,9 +375,9 @@ const POP_PAGE = {
 			}
 		}
 		// sku 点击删除
-		var skuCancelObj = document.getElementsByClassName('cancel-btn');
+		const skuCancelObj = document.querySelectorAll('.cancel-btn');
 		if (skuCancelObj) {
-			for (var i = 0; i < skuCancelObj.length; i++) {
+			for (let i = 0; i < skuCancelObj.length; i++) {
 				skuCancelObj[i].onclick = function(event) {
 					this.parentNode.remove();
 				}
@@ -407,7 +402,7 @@ const POP_PAGE = {
 			let div = document.createElement('div');
 			div.setAttribute('class', 'productAttLine');
 			div.innerHTML = `<div class="label">产品分类:</div>
-							<div class="fillin">
+							<div class="fill_in">
 								<select name="bc_product_category[`+count+`]">
 									<option value="">请选择分类</option>
 									`+_this.categoryHtml+`
@@ -418,18 +413,18 @@ const POP_PAGE = {
 		}
 	},
 	serializeForm: function(formobj) {
-		var formData = new FormData(formobj);
+		let formData = new FormData(formobj);
 		return Object.fromEntries(formData.entries());
 	},
 	initPdtImgValue: function(pobj) {
-		var imgValueObj = pobj.querySelectorAll('.bc_product_picture')[0];
+		let imgValueObj = pobj.querySelector('.bc_product_picture');
 		if (imgValueObj === null) {
 			pobj.innerHTML += '<input type="hidden" name="bc_product_img" class="bc_product_picture" value=""/>';
-			imgValueObj = pobj.getElementsByClassName('bc_product_picture')[0];
+			imgValueObj = pobj.querySelector('.bc_product_picture');
 		}
-		var imgobj = pobj.getElementsByTagName('img');
-		var value = '';
-		for (var i = 0; i < imgobj.length; i++) {
+		const imgobj = pobj.getElementsByTagName('img');
+		let value = '';
+		for (let i = 0; i < imgobj.length; i++) {
 			if (i > 0) {
 				value += ',';
 			}
