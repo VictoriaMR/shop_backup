@@ -26,7 +26,7 @@ class ImageService
 		    $angle = rand(0, 30);
 		    $x = ($i * $width / $len) + 5;
 		    //随机码高度
-		    $y = rand($fontsize, $height - 5);
+		    $y = rand($fontsize, $height - 7);
 		    //填充当前字符入画布
 		    imagettftext($image, $fontsize, rand(0, 30), $x, $y, $fontcolor, self::FONTFILE, $code[$i]);
     	}
