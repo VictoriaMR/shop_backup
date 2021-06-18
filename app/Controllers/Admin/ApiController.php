@@ -60,7 +60,7 @@ class ApiController extends Controller
 		$translateService = make('App\Services\TranslateService');
 		$fileService = make('App\Services\FileService');
 
-		//上次或者更新图片
+		//上传或者更新图片
 		$spuImageArr = [];
 		$firstImage = [];
 		if (!is_array($data['bc_product_img'])) {
