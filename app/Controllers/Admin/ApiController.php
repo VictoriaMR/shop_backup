@@ -51,10 +51,11 @@ class ApiController extends Controller
 		if (empty($data['bc_product_img'])) {
 			$this->error('产品图片不能为空!');
 		}
+		//删除链接后缀
+		$data['bc_product_url'] = $this->getSupplierItemUrl($data['bc_product_url']);
 		if (empty($data['bc_product_url'])) {
 			$this->error('产品链接不能为空!');
 		}
-		$data['bc_product_url'] = explode('?', $data['bc_product_url'])[0];
 		$spuDataService = make('App\Services\ProductSpuDataService');
 		
 		$translateService = make('App\Services\TranslateService');
@@ -75,12 +76,12 @@ class ApiController extends Controller
 		}
 		$spuImageArr = array_filter($spuImageArr);
 		if (empty($spuImageArr)) {
-			$this->error('产品图片上传失败!');
+		
 		}
 		//属性组
 		$attributeService = make('App\Services\AttributeService');
 		$attrvalueService = make('App\Services\AttrvalueService');
-		$attrArr = [];
+		$attrArr = [];	$this->error('产品图片上传失败!');
 		$attrValueArr = [];
 		foreach ($data['bc_sku'] as $key => $value) {
 			$attrArr = array_merge($attrArr, array_keys($value['attr']));
@@ -101,9 +102,9 @@ class ApiController extends Controller
 
 		$where = [
 			'site_id' => $data['bc_product_site'],
-			'supplier_id' => $supplierId,
+		
 			'item_id' => $data['bc_product_id'],
-		];
+		];	'supplier_id' => $supplierId,
 		$info = $spuDataService->getInfoByWhere($where);
 		if (empty($info)) {
 			//价格合集
@@ -280,6 +281,23 @@ class ApiController extends Controller
 		}
 		$descService->addDescRelation($insert);
 		$this->success();
+	}
+
+	protected function getSupplierItemUrl($url)
+	{
+		if (empty($url)) {
+			return '';
+		}
+		$url = explode('?', $url);
+		if (strpos($url, 'taobao.com') === false) {
+			return $url[0];
+		} else {
+			$id = parse_str($url[1])['id'] ?? '';
+			if (empty($id)) {
+				return '';
+			}
+			return $url[0].(empty($id) ? '': '?id='.$id);
+		}
 	}
 
 	protected function filterUrl($url)
