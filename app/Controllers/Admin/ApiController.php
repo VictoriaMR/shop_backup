@@ -45,6 +45,10 @@ class ApiController extends Controller
 		if (empty($data['bc_product_site'])) {
 			$this->error('站点不能为空!');
 		}
+		$data['bc_product_name'] = trim($data['bc_product_name']);
+		if (empty($data['bc_product_name'])) {
+			$this->error('产品标题不能为空!');
+		}
 		if (empty($data['bc_sku'])) {
 			$this->error('产品SKU不能为空!');
 		}
@@ -57,8 +61,6 @@ class ApiController extends Controller
 			$this->error('产品链接不能为空!');
 		}
 		$spuDataService = make('App\Services\ProductSpuDataService');
-		
-		$translateService = make('App\Services\TranslateService');
 		$fileService = make('App\Services\FileService');
 
 		//上传或者更新图片
@@ -76,35 +78,32 @@ class ApiController extends Controller
 		}
 		$spuImageArr = array_filter($spuImageArr);
 		if (empty($spuImageArr)) {
-		
+			$this->error('产品图片上传失败!');
 		}
 		//属性组
 		$attributeService = make('App\Services\AttributeService');
 		$attrvalueService = make('App\Services\AttrvalueService');
-		$attrArr = [];	$this->error('产品图片上传失败!');
+		$attrArr = [];
 		$attrValueArr = [];
 		foreach ($data['bc_sku'] as $key => $value) {
 			$attrArr = array_merge($attrArr, array_keys($value['attr']));
 			$attrValueArr = array_merge($attrValueArr, array_column($value['attr'], 'text'));
 		}
-		$attrArr = array_flip(array_unique($attrArr));
-		$attrValueArr = array_flip(array_unique($attrValueArr));
+		//转换成键值对
+		$attrArr = array_flip($attrArr);
+		$attrValueArr = array_flip($attrValueArr);
 		foreach ($attrArr as $key => $value) {
 			$attrArr[$key] = $attributeService->addNotExist($key);
 		}
 		foreach ($attrValueArr as $key => $value) {
 			$attrValueArr[$key] = $attrvalueService->addNotExist($key);
 		}
-		//多语言配置
-		$lanArr = make('App\Services\LanguageService')->getInfoCache();
-
 		$productLanguageService = make('App\Services\ProductLanguageService');
-
 		$where = [
 			'site_id' => $data['bc_product_site'],
-		
 			'item_id' => $data['bc_product_id'],
-		];	'supplier_id' => $supplierId,
+			'supplier_id' => $supplierId,
+		];	
 		$info = $spuDataService->getInfoByWhere($where);
 		if (empty($info)) {
 			//价格合集
@@ -113,12 +112,12 @@ class ApiController extends Controller
 			}
 			$priceArr = array_column($data['bc_sku'], 'p_price');
 			$insert = [
-				'status' => 1,
+				'status' => 0,
 				'site_id' => $data['bc_product_site'],
 				'avatar' => $firstImage['cate'].'/'.$firstImage['name'].'.'.$firstImage['type'],
 				'min_price' => min($priceArr),
 				'max_price' => max($priceArr),
-				'origin_price' => round(max($priceArr) * ((10 - rand(5, 9)) / 10 + 1), 2),
+				'origin_price' => round(max($priceArr) * ((10 - rand(5, 9)) / 10 + 1), 2), //虚拟原价
 				'name' => $data['bc_product_name'],
 				'add_time' => now(),
 			];
@@ -137,16 +136,26 @@ class ApiController extends Controller
 				'shop_url' => $data['bc_shop_url'],
 			];
 			$spuDataService->create($insert);
+			//spu 多语言
+			$insert = [
+				'spu_id' => $spuId,
+				'sku_id' => 0,
+				'lan_id' => 1,
+				'name' => $data['bc_product_name']
+			];
+			$productLanguageService->create($insert);
 			//sku
 			$skuService = make('App\Services\ProductSkuService');
 			foreach ($data['bc_sku'] as $key => $value) {
-				$nameZhStr = '';
+				if (empty($value['stock'])) continue;
+
+				$name = '';
 				//sku 属性
 				foreach ($value['attr'] as $k => $v) {
-					$nameZhStr .= ' '.$v['text'];
+					$name .= ' '.$v['text'];
 				}
-				$nameZhStr = trim($nameZhStr);
-				$name = trim($data['bc_product_name'].(empty($nameEnStr) ? '' : ' - '.$nameEnStr));
+				$name = trim($name);
+				$name = $data['bc_product_name'].' - '.$name;
 
 				$avatar = '';
 				if (!empty($value['img'])) {
@@ -158,7 +167,7 @@ class ApiController extends Controller
 				}
 				$insert = [
 					'spu_id' => $spuId,
-					'status' => $value['stock'] > 0 ? 1 : 0,
+					'status' => 1,
 					'avatar' => $avatar,
 					'stock' => $value['stock'],
 					'price' => $value['p_price'],
@@ -167,21 +176,13 @@ class ApiController extends Controller
 					'add_time' => now(),
 				];
 				$skuId = $skuService->create($insert);
-				//多语言
-				foreach ($lanArr as $k => $v) {
-					if ($v['code'] != 'zh') {
-						$tempName = $translateService->getTranslate($name, $v['tr_code']);
-					} else {
-						$tempName = $name;
-					}
-					$insert = [
-						'spu_id' => $spuId,
-						'sku_id' => $skuId,
-						'lan_id' => $v['lan_id'],
-						'name' => $tempName,
-					];
-					$productLanguageService->create($insert);
-				}
+				$insert = [
+					'spu_id' => $spuId,
+					'sku_id' => $skuId,
+					'lan_id' => 1,
+					'name' => $name,
+				];
+				$productLanguageService->create($insert);
 				//属性关联
 				$insert = [];
 				$count = 1;
@@ -217,20 +218,6 @@ class ApiController extends Controller
 		//产品分类关联
 		make('App\Services\CategoryService')->addCateProRelation($spuId, $data['bc_product_category']);
 
-		foreach ($lanArr as $key => $value) {
-			if ($value['code'] != 'zh') {
-				$name = $translateService->getTranslate($data['bc_product_name'], $value['tr_code']);
-			} else {
-				$name = $data['bc_product_name'];
-			}
-			$insert = [
-				'spu_id' => $spuId,
-				'sku_id' => 0,
-				'lan_id' => $value['lan_id'],
-				'name' => $name,
-			];
-			$productLanguageService->create($insert);
-		}
 		//spu图片组
 		$insert = [];
 		$count = 1;
@@ -264,7 +251,7 @@ class ApiController extends Controller
 			$spuService->addIntroduceImage($insert);
 		}
 
-		//介绍文本
+		//spu介绍文本
 		$descService = make('App\Services\DescriptionService');
 		$descArr = [];
 		$insert = [];
@@ -302,7 +289,7 @@ class ApiController extends Controller
 
 	protected function filterUrl($url)
 	{
-		return str_replace(['.200x200', '.400x400', '.600x600', '.800x800'], '', $url);
+		return str_replace(['.200x200', '.400x400', '.600x600', '.800x800', '_.webp'], '', $url);
 	}
 
 	protected function getSiteId($name)

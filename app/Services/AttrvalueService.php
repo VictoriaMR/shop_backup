@@ -11,39 +11,31 @@ class AttrvalueService extends BaseService
 {
 	const CACHE_KEY = 'PRODUCT_ATTRVALUE_CACHE';
 
-	public function addNotExist($nameZh)
+	public function addNotExist($name)
     {
-        if (empty($nameZh)) {
+        if (empty($name)) {
             return false;
         }
-        $nameZh = trim($nameZh);
-        $info = $this->getInfoByName($nameZh);
+        $name = trim($name);
+        $info = $this->getInfoByName($name);
         if (!empty($info)) {
             return $info['attv_id'];
         }
         $data = [
-            'name' => $nameZh,
+            'name' => $name,
             'sort' => 0,
         ];
         $translateService = make('App\Services\TranslateService');
         $attvId = make('App\Models\Attrvalue')->create($data);
         //设置多语言
         $attrLanModel = make('App\Models\AttrvalueLanguage');
-        $lanList = make('App\Services\LanguageService')->getInfoCache();
-        foreach ($lanList as $key => $value) {
-            if ($value['code'] == 'zh') {
-                $name = $nameZh;
-            } else {
-                $name = $translateService->getTranslate($nameZh, $value['tr_code']);
-            }
-            $insert = [
-                'attv_id' => $attvId,
-                'lan_id' => $value['lan_id'],
-                'name' => $name,
-            ];
-            $attrLanModel->create($insert);
-        }
-        return true;
+        $data = [
+            'attv_id' => $attvId,
+            'lan_id' => 1,
+            'name' => $name,
+        ];
+        $attrLanModel->create($data);
+        return $attvId;
     }
 
     public function getInfoByName($name)

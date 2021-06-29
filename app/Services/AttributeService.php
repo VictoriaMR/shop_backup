@@ -11,39 +11,31 @@ class AttributeService extends BaseService
 {
 	const CACHE_KEY = 'PRODUCT_ATTRIBUTE_CACHE';
 
-	public function addNotExist($nameZh)
+	public function addNotExist($name)
 	{
-		if (empty($nameZh)) {
+		if (empty($name)) {
 			return false;
 		}
-        $nameZh = trim($nameZh);
-        $info = $this->getInfoByName($nameZh);
+        $name = trim($name);
+        $info = $this->getInfoByName($name);
         if (!empty($info)) {
             return $info['attr_id'];
         }
 
         $translateService = make('App\Services\TranslateService');
         $data = [
-            'name' => $nameZh,
+            'name' => $name,
             'sort' => 0,
         ];
         $attrId = make('App\Models\Attribute')->create($data);
-        //设置多语言
+        //不设置多语言
         $attrLanModel = make('App\Models\AttributeLanguage');
-        $lanList = make('App\Services\LanguageService')->getInfoCache();
-        foreach ($lanList as $key => $value) {
-            if ($value['code'] == 'zh') {
-                $name = $nameZh;
-            } else {
-                $name = $translateService->getTranslate($nameZh, $value['tr_code']);
-            }
-            $insert = [
-            	'attr_id' => $attrId,
-            	'lan_id' => $value['lan_id'],
-            	'name' => $name,
-            ];
-            $attrLanModel->create($insert);
-        }
+        $data = [
+            'attr_id' => $attrId,
+            'lan_id' => 1
+            'name' => $name,
+        ];
+        $attrLanModel->create($data);
         return $attrId;
 	}
 

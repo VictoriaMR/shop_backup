@@ -19,22 +19,13 @@ class DescriptionService extends BaseService
     	if (empty($info)) {
     		$id = $model->insertGetId(['name' => $name]);
             //翻译
-            $lanArr = make('App\Services\LanguageService')->getInfoCache();
             $model = make('App\Models\DescriptionLanguage');
-            $translateService = make('App\Services\TranslateService');
-            foreach ($lanArr as $key => $value) {
-                if ($value['code'] == 'zh') {
-                    $tempName = $name;
-                } else {
-                    $tempName = $translateService->getTranslate($name, $value['tr_code']);
-                }
-                $insert = [
-                    'desc_id' => $id,
-                    'lan_id' => $value['lan_id'],
-                    'name' => $tempName,
-                ];
-                $model->insert($insert);
-            }
+            $insert = [
+                'desc_id' => $id,
+                'lan_id' => 1,
+                'name' => $name,
+            ];
+            make('App\Models\DescriptionLanguage')->insert($insert);
     	}
     	return $info['desc_id'];
     }
