@@ -3,6 +3,7 @@ const HELPERINIT = {
 		//获取域名
 		this.domain = this.getDomain();
 		//爬取数据控制
+		console.log(this.isItemPage(this.domain))
 		if (this.isItemPage(this.domain)) {
 			this.crawlerItem();
 		}

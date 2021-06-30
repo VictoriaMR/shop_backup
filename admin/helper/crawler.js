@@ -1,7 +1,6 @@
 const CRAWLER = {
     getData: function(callback) {
         const domain = HELPERINIT.getDomain();
-        console.log(domain)
         switch (domain) {
             case '1688.com':
                 this.get1688(callback);
@@ -10,7 +9,6 @@ const CRAWLER = {
                 this.getTaobao(callback);
                 break;
             case 'tmall.com':
-            console.log(123123)
                 this.getTmall(callback);
                 break;
             default:
@@ -150,16 +148,16 @@ const CRAWLER = {
             return false;
         }
         const _this = this;
-        _this.timeId = _this.waitTime(function(){
-            const skuMap = Hub.config.config.sku.valItemInfo.skuMap;
-            if (skuMap && g_config.dynStock && g_config.dynStock.sku) {
+        _this.timeId = _this.waitTime(function() {
+            if (Hub && g_config) {
                 _this.clearTime(_this.timeId);
                 let multi_sku = 0;
                 let name = _this.getTaobaoName();
                 let pdt_picture = _this.getTaobaoPicture();
                 let sku = {};
                 let attr = {};
-                if (skuMap) {
+                if (Hub.config.config.sku.sku) {
+                    const skuMap = Hub.config.config.sku.valItemInfo.skuMap;
                     multi_sku = 1;
                     //属性切分
                     const skuDomList = document.querySelectorAll('.J_Prop');
@@ -205,7 +203,7 @@ const CRAWLER = {
                         sku[skuMap[k].skuId]={pvs:pvs, price:price, original_price:originalPrice, stock:stock, sku_img:sku_img};
                     }
                 } else {
-
+                    sku[g_config.itemId] = {price:g_config.price, stock:g_config.dynStock.stock};
                 }
                 const ret_data = {sku:sku,attr:attr,name:name,pdt_picture:pdt_picture,multi_sku:multi_sku,product_url:location.href,item_id:g_config.itemId,shop_name:g_config.shopName,shop_id:g_config.shopId,shop_url:g_config.idata.shop.url};
                 //获取描述属性
@@ -218,7 +216,7 @@ const CRAWLER = {
                 ret_data.attributes = attributes;
                 _this.getTaobaoDesPic(ret_data, callback);
             }
-        }, 1000, false, function(){
+        }, 1000, false, function() {
             callback({code:10003, data:false, message:'获取数据超时'});
         });
     },
