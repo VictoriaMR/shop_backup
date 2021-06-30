@@ -10,9 +10,6 @@ if (current_host.indexOf('taobao.com') >= 0) {  // 淘宝产品页面
 if (current_host.indexOf('tmall.com') >= 0) {  // 天猫产品页面
     domain = 'tmall.com';
 }
-/*
-*callback function (code,data,msg){} //code=0 获取成功 获取的数据存在data中 {sku:sku,attr:attr,multi_sku:multi_sku,name:name,product_url: location.href,pdt_picture:pdt_picture}
-* */
 function getCrawData(callback) {
     let item_id=isItemPage();
     if (domain && item_id) {

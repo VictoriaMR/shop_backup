@@ -8,6 +8,27 @@ class ApiController extends Controller
 {
 	protected $_cateArr = ['category'];
 
+	public function getHelperData()
+	{
+		$data = [
+			'version' => '1.0.0',
+			'category' => make('App\Services\CategoryService')->getListFormat(),
+			'site' => make('App\Services\SiteService')->getList(),
+		];
+		$this->success($data);
+	}
+
+	public function getHelperFunction()
+	{
+		$data = [
+			[
+				'title' => '数据爬取',
+				'name' => 'crawler',
+			]
+		];
+		$this->success($data);
+	}
+
 	public function upload()
 	{	
 		$file = $_FILES['file'] ?? [];

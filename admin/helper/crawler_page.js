@@ -1,52 +1,17 @@
-const common_url = 'https://lmr.admin.cn/';
-//公共方法
-const HELPER = {
-	//向背景脚本请求
-	request: function(data, callback) {
-		chrome.runtime.sendMessage(this.getExtId(), data,
-			function(response) {
-			if (callback) {
-				callback(response);
-			}
-		});
-	},
-	getExtId: function() {
-		return localStorage.getItem('chrome_helper_ext_id');
-	},
-};
-//自定义页面
-const POP_PAGE = {
+const CRAWLERPAGE = {
 	init: function() {
 		const _this = this;
-		HELPER.request({action: 'requestCache', value: 'common/getCrawlerData', cache_key: 'crawler_data_cache'}, function(res) {
-			if (res.code === 200 || res.code === '200') {
-				let head,content;
-				head = document.getElementsByTagName('head')[0];
-				content = document.createElement('script');
-				content.src = common_url+'googleHelper/crawler.js?version='+res.data.version;
-				content.type = 'text/javascript';
-				content.id = 'googleHelper_crawler_js';
-				content.charset = 'utf-8';
-				head.appendChild(content);
-				content.onload=content.onreadystatechange=function() {
-					head = document.getElementsByTagName('head')[0];
-					content = document.createElement('link');
-					content.href = common_url+'googleHelper/crawler.css?version='+res.data.version;
-					content.rel = 'stylesheet';
-					content.type = 'text/css';
-					content.charset = 'utf-8';
-					content.id = 'googleHelper_crawler_css';
-					head.appendChild(content);
-					let crawlerPage = _this.init_crawlerPage();
-					if (domain === 'taobao.com') {
-						crawlerPage.style['z-index'] = '100000099';
-						crawlerPage.style.right = '45px';
-					} else if (domain === 'tmall.com') {
-						crawlerPage.style.right = '5px';
-					}
-					_this.init_content(res.data);
-				}
-			}
+		//载入分析数据js
+		HELPERINIT.loadStatic('js', 'helper/crawler.js', function(){
+			//注入页面相关css
+			HELPERINIT.loadStatic('css', 'helper/crawler_page.css', function(){
+				_this.init_crawler();
+			});
+		});
+	},
+	init_crawler: function() {
+		CRAWLER.getData(function(res) {
+			console.log(res)
 		});
 	},
 	init_content: function(data) {
@@ -433,4 +398,4 @@ const POP_PAGE = {
 		imgValueObj.value = value;
 	}
 };
-POP_PAGE.init();
+CRAWLERPAGE.init();
