@@ -157,4 +157,9 @@ class ProductSpuService extends BaseService
 	{
 		return self::CACHE_INFO_KEY.$spuId.'_'.\frame\Session::get('home_language_id');
 	}
+
+	public function getStatusList()
+	{
+		return [0=>'下架', 1=>'上架'];
+	}
 }
