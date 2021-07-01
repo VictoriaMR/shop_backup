@@ -3,7 +3,6 @@ const HELPERINIT = {
 		//获取域名
 		this.domain = this.getDomain();
 		//爬取数据控制
-		console.log(this.isItemPage(this.domain))
 		if (this.isItemPage(this.domain)) {
 			this.crawlerItem();
 		}
@@ -101,7 +100,7 @@ const HELPERINIT = {
 		const _this = this;
 		_this.request({action: 'getCache', cache_key: 'crawler_switch_status'}, function(res){
 			if (res.data && res.data === '1') {
-				_this.loadStatic('js', 'helper/crawler_page.js');
+				_this.loadStatic('js', 'helper/crawler_init.js');
 			}
 		});
 	},

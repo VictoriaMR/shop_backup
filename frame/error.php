@@ -20,7 +20,7 @@ class Error
 
     public static function error_debug($errno, $errStr, $errfile = '', $errline = '')
     {
-		self::error_echo($errfile, $errline, $errStr);
+    	throw new \ErrorException( $errStr, 0, $errno, $errfile, $errline );
     }
 
     public static function exception_debug($exception)

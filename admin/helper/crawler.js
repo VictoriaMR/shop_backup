@@ -328,7 +328,7 @@ const CRAWLER = {
                         let price=(typeof t.instance()['__attrVals']['promoPrice']!='undefined' && t.instance()['__attrVals']['promoPrice'])?t.instance()['__attrVals']['promoPrice']['str']:t.instance()['__attrVals']['originalPrice']['str'];
                         sku={price:price,stock:t.instance()['__attrVals']['currentInventory'].quantity};
                     }
-                    let ret_data={sku:sku,attr:attr,name:name,pdt_picture:pdt_picture,multi_sku:multi_sku,product_url: location.href,item_id:document.getElementById('LineZing').getAttribute('itemId')};
+                    let ret_data={sku:sku,attr:attr,name:name,pdt_picture:pdt_picture,multi_sku:multi_sku,product_url: location.href,item_id:document.getElementById('LineZing').getAttribute('itemId'),shop_name:document.querySelector('#shopExtra .slogo-shopname').innerText,shop_id:g_config.shopId,shop_url:g_config.shopUrl};
                     let des_url='';
                     if(typeof t.instance()['__attrVals'].config.api.httpsDescUrl !== 'undefined'){
                         des_url=t.instance()['__attrVals'].config.api.httpsDescUrl;

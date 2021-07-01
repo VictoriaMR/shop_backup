@@ -145,6 +145,9 @@ Class Query
 
 	public function insert(array $data = [])
 	{
+		if (empty($data)) {
+			return false;
+		}
 		if (empty($this->_table)) {
 			throw new \Exception('MySQL Error, no found table', 1);
 		}

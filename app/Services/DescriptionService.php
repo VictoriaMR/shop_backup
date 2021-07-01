@@ -15,6 +15,7 @@ class DescriptionService extends BaseService
     		return 0;
     	}
     	$model = make('App\Models\Description');
+        $name = mb_substr($name, 0, 120, 'UTF-8');
     	$info = $model->getInfoByWhere(['name' => $name]);
     	if (empty($info)) {
     		$id = $model->insertGetId(['name' => $name]);
@@ -26,8 +27,10 @@ class DescriptionService extends BaseService
                 'name' => $name,
             ];
             make('App\Models\DescriptionLanguage')->insert($insert);
-    	}
-    	return $info['desc_id'];
+    	} else {
+            $id = $info['desc_id'];
+        }
+    	return $id;
     }
 
     public function addDescRelation(array $insert)

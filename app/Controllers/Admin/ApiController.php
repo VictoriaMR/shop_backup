@@ -88,11 +88,15 @@ class ApiController extends Controller
 		$spuImageArr = [];
 		$firstImage = [];
 		if (!is_array($data['bc_product_img'])) {
-			$data['bc_product_img'] = explode(',', $data['bc_product_img']);
+			$data['bc_product_img'] = array_unique(explode(',', $data['bc_product_img']));
 		}
 		foreach ($data['bc_product_img'] as $key => $value) {
 			$url = $this->filterUrl($value);
-			$spuImageArr[$url] = $fileService->uploadUrlImage($url, 'product');
+			$rst = $fileService->uploadUrlImage($url, 'product');
+			if (!$rst) {
+				continue;
+			}
+			$spuImageArr[$url] = $rst;
 			if ($key == 0) {
 				$firstImage = $spuImageArr[$url];
 			}
@@ -126,10 +130,11 @@ class ApiController extends Controller
 			'supplier_id' => $supplierId,
 		];	
 		$info = $spuDataService->getInfoByWhere($where);
+		$spuService = make('App\Services\ProductSpuService');
 		if (empty($info)) {
 			//价格合集
 			foreach ($data['bc_sku'] as $key => $value) {
-				$data['bc_sku'][$key]['p_price'] = $value['price'] + rand(250, 350);
+				$data['bc_sku'][$key]['p_price'] = $value['price'] + rand(150, 200);
 			}
 			$priceArr = array_column($data['bc_sku'], 'p_price');
 			$insert = [
@@ -142,7 +147,6 @@ class ApiController extends Controller
 				'name' => $data['bc_product_name'],
 				'add_time' => now(),
 			];
-			$spuService = make('App\Services\ProductSpuService');
 			//事务开启
 			$spuDataService->start();
 			$spuId = $spuService->create($insert);
@@ -160,11 +164,25 @@ class ApiController extends Controller
 			//spu 多语言
 			$insert = [
 				'spu_id' => $spuId,
-				'sku_id' => 0,
 				'lan_id' => 1,
 				'name' => $data['bc_product_name']
 			];
 			$productLanguageService->create($insert);
+
+			//spu图片组
+			$insert = [];
+			$count = 1;
+			foreach ($spuImageArr as $value) {
+				$insert[] = [
+					'spu_id' => $spuId,
+					'attach_id' => $value['attach_id'],
+					'sort' => $count++,
+				];
+			}
+			if (!empty($insert)) {
+				$spuService->addSpuImage($insert);
+			}
+
 			//sku
 			$skuService = make('App\Services\ProductSkuService');
 			foreach ($data['bc_sku'] as $key => $value) {
@@ -182,7 +200,11 @@ class ApiController extends Controller
 				if (!empty($value['img'])) {
 					$value['img'] = $this->filterUrl($value['img']);
 					if (empty($spuImageArr[$value['img']])) {
-						$spuImageArr[$value['img']] = $fileService->uploadUrlImage($value['img'], 'product');
+						$rst = $fileService->uploadUrlImage($value['img'], 'product');
+						if (empty($rst)) {
+							continue;
+						}
+						$spuImageArr[$value['img']] = $rst;
 					}
 					$avatar = $spuImageArr[$value['img']]['cate'].'/'.$spuImageArr[$value['img']]['name'].'.'.$spuImageArr[$value['img']]['type'];
 				}
@@ -193,13 +215,11 @@ class ApiController extends Controller
 					'stock' => $value['stock'],
 					'price' => $value['p_price'],
 					'cost_price' => $value['price'],
-					'name' => $name,
 					'add_time' => now(),
 				];
 				$skuId = $skuService->create($insert);
 				$insert = [
 					'spu_id' => $spuId,
-					'sku_id' => $skuId,
 					'lan_id' => 1,
 					'name' => $name,
 				];
@@ -238,24 +258,11 @@ class ApiController extends Controller
 		}
 		//产品分类关联
 		make('App\Services\CategoryService')->addCateProRelation($spuId, $data['bc_product_category']);
-
-		//spu图片组
-		$insert = [];
-		$count = 1;
-		foreach ($spuImageArr as $value) {
-			$insert[] = [
-				'spu_id' => $spuId,
-				'attach_id' => $value['attach_id'],
-				'sort' => $count++,
-			];
-		}
-		if (!empty($insert)) {
-			$spuService->addSpuImage($insert);
-		}
+		
 		//spu 介绍图片
 		$insert = [];
 		$count = 1;
-		$data['bc_product_des_picture'] = explode(',', $data['bc_product_des_picture']);
+		$data['bc_product_des_picture'] = array_unique(explode(',', $data['bc_product_des_picture']));
 		foreach ($data['bc_product_des_picture'] as $value) {
 			$url = $this->filterUrl($value);
 			if (empty($spuImageArr[$url])) {
@@ -277,8 +284,8 @@ class ApiController extends Controller
 		$descArr = [];
 		$insert = [];
 		foreach ($data['bc_des_text'] as $key => $value) {
-			$value['key'] = trim($value['key']);
-			$value['value'] = trim($value['value']);
+			$value['key'] = trim($value['key'], chr(0xc2).chr(0xa0));
+			$value['value'] = trim($value['value'], chr(0xc2).chr(0xa0));
 			$descArr[$value['key']] = $descService->setNotExit($value['key']);
 			$descArr[$value['value']] = $descService->setNotExit($value['value']);
 			$insert[] = [
@@ -297,10 +304,11 @@ class ApiController extends Controller
 			return '';
 		}
 		$url = explode('?', $url);
-		if (strpos($url, 'taobao.com') === false) {
+		if (strpos($url[0], '1688.com') !== false) {
 			return $url[0];
 		} else {
-			$id = parse_str($url[1])['id'] ?? '';
+			parse_str($url[1], $params);
+			$id = $params['id'] ?? '';
 			if (empty($id)) {
 				return '';
 			}

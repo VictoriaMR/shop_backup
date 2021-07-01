@@ -2,13 +2,16 @@
 	position:fixed;
 	right:40px;
 	top:5px;
-	width:290px;
+	width:auto;
+	min-width: 40px;
+	min-height: 28px;
+	max-width: 380px;
 	background-color:white;
 	border:3px solid #321679;
 	box-shadow: -6px 7px 20px rgba(0,0,0,0.4);
 	border-radius:5px;
 	padding:4px;
-	z-index: 99999999;
+	z-index: 999999999;
 }
 #crawler_page .tc {
 	text-align: center;
@@ -25,27 +28,35 @@
 #crawler_page .flex1 {
 	flex: 1;
 }
-#crawler_page .userinfo-content {
+#crawler_page .top-content {
 	display: flex;
 	padding-bottom: 3px;
-	border-bottom: 1px solid #321679;
 }
-#crawler_page .crawler-reload {
-	width: 100%;
+#crawler_page .crawler-button {
 	position: relative;
+	width: 380px;
+	border-bottom: 1px solid #321679;
+	padding-bottom: 4px;
+	display: none;
 }
-#crawler_page .crawler-reload button {
+#crawler_page button {
 	color: #fff;
 	background: #321679;
 	border: none;
 	cursor: pointer;
 	padding: 5px 8px;
 }
-#add-category {
-	float: right;
+#crawler-show-btn {
+	position: absolute;
+	right: 4px;
+	top: 4px;
+}
+#item-content {
+	display: none;
 }
 #crawler_page .error-msg {
-	color: orange;
+	color: red;
+	text-align: center;
 }
 #crawler_page .userinfo-content .name-content {
 	max-width: 120px;
@@ -152,7 +163,7 @@
 }
 #crawler_page .productMainPic .pdtPicHere .imgList {
     float: left;
-    width: 136px;
+    width: calc(50% - 4px);
     margin: 2px;
 }
 #crawler_page .productMainPic .pdtPicHere .imgList:hover{
@@ -178,8 +189,7 @@
 #crawler_page .productAttLine .sku-item .sku-attr div {
 	margin-right: 5px;
 	width: auto;
-	max-width: 88px;
-	min-width: 40px;
+	max-width: 133px;
 	margin-bottom: 3px;
 	display: inline-flex;
 }

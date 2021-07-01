@@ -63,7 +63,16 @@ class FileService
             mkdir($dir, 0777, true);
         }
         $tempName = $dir.\frame\Str::getUniqueName().'.'.$ext;
-        if (file_put_contents($tempName, file_get_contents($url))) {
+        //获取文件
+        if (substr($url, 0, 4) != 'http') {
+            $url = 'https:'.$url;
+        }
+        try {
+            $result = @file_get_contents($url);
+        } catch (\Throwable $e) {
+            return false;
+        }
+        if (file_put_contents($tempName, $result)) {
             $name = md5_file($tempName);
             $attachmentService = make('App\Services\AttachmentService');
             $data = $attachmentService->getAttachmentByName($name);

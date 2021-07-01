@@ -21,23 +21,15 @@ class ProductLanguageService extends BaseService
 
 	public function create(array $data)
 	{
-		if ($this->baseModel->isExist($data['spu_id'], $data['sku_id'], $data['lan_id'])) {
+		if ($this->baseModel->isExist($data['spu_id'], $data['lan_id'])) {
 			return false;
 		} else {
 			return $this->baseModel->create($data);
 		}
 	}
 
-	public function getText($spuId, $skuId, $lanId)
+	public function getText($spuId, $lanId)
 	{
-		return $this->baseModel->getInfoByWhere(['spu_id'=>(int)$spuId, 'sku_id'=>(int)$skuId, 'lan_id'=>(int)$lanId], 'name')['name'] ?? '';
-	}
-
-	public function getTextArr($spuId, $skuId, $lanId)
-	{
-		if (!is_array($skuId)) {
-			$skuId = [(int) $skuId];
-		}
-		return $this->baseModel->where(['spu_id'=>(int)$spuId, 'sku_id'=>['in', $skuId], 'lan_id'=>(int)$lanId], 'name')->get();
+		return $this->baseModel->getInfoByWhere(['spu_id'=>(int)$spuId, 'lan_id'=>(int)$lanId], 'name')['name'] ?? '';
 	}
 }

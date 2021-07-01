@@ -19,8 +19,8 @@ class ProductLanguage extends BaseModel
     	return $this->insert($data);
     }
 
-    public function isExist($spuId, $skuId, $lanId)
+    public function isExist($spuId, $lanId)
     {
-        return $this->getCount(['spu_id' => (int)$spuId, 'sku_id' => (int)$skuId, 'lan_id' => (int)$lanId]) > 0;
+        return $this->getCount(['spu_id' => (int)$spuId, 'lan_id' => (int)$lanId]) > 0;
     }
 }

@@ -32,7 +32,7 @@ class AttributeService extends BaseService
         $attrLanModel = make('App\Models\AttributeLanguage');
         $data = [
             'attr_id' => $attrId,
-            'lan_id' => 1
+            'lan_id' => 1,
             'name' => $name,
         ];
         $attrLanModel->create($data);
