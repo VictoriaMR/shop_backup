@@ -76,9 +76,9 @@ class CategoryService extends BaseService
         return make('App\Models\CategoryLanguage')->getListByWhere(['cate_id' => $cateId]);
     }
 
-    public function getList()
+    public function getList(array $where=[])
     {
-        $list = $this->baseModel->orderBy('sort', 'asc')->get();
+        $list = $this->baseModel->where($where)->orderBy('sort', 'asc')->get();
         if (!empty($list)) {
             foreach ($list as $key => $value) {
                 if (empty($value['avatar'])) {
@@ -185,6 +185,11 @@ class CategoryService extends BaseService
     {
         $result = make('App\Models\ProductCategoryRelation')->where('cate_id', $cateId)->field('spu_id')->get();
         return array_column($result, 'spu_id');
+    }
+
+    public function getRelationList(array $where=[])
+    {
+        return make('App\Models\ProductCategoryRelation')->where($where)->field('cate_id,spu_id')->get();
     }
 
     public function updateStat()

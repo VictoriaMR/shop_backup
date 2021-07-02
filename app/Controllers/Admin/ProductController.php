@@ -45,7 +45,7 @@ class ProductController extends Controller
 		if (in_array($site, array_keys($siteList), true)) {
 			$where['site_id'] = $site;
 		}
-		if (!empty($cate)) {
+		if ($cate > 0) {
 			$spuIdArr = make('App/Services/CategoryService')->getSpuIdByCateId($cate);
 			if (empty($spuIdArr)) {
 				$where = ['spu_id' => 0];

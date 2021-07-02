@@ -175,11 +175,27 @@ class ProductSpuService extends BaseService
 	public function getAdminList(array $where=[], $page=1, $size=20)
 	{
 		$list = make('App\Models\ProductSpu')->getListByWhere($where, '*', $page, $size);
-		foreach ($list as $key => $value) {
-			$value['avatar'] = mediaUrl($value['avatar'], 400);
-			$value['status_text'] = $this->getStatusList($value['status']);
-			$value['url'] = url('product/view', ['id'=>$value['spu_id']]);
-			$list[$key] = $value;
+		if (!empty($list)) {
+			$spuIdArr = array_column($list, 'spu_id');
+			$cateService = make('App/Services/CategoryService');
+			$linkArr = $cateService->getRelationList(['spu_id'=>['in', $spuIdArr]]);
+			$cateIdArr = array_unique(array_column($linkArr, 'cate_id'));
+			$cateArr = $cateService->getList(['cate_id'=>['in', $cateIdArr]]);
+			$cateArr = array_column($cateArr, 'name', 'cate_id');
+			$tempArr = [];
+			foreach ($linkArr as $value) {
+				$tempArr[$value['spu_id']][] = $cateArr[$value['cate_id']];
+			}
+			$siteArr = make('App/Services/SiteService')->getListCache();
+			$siteArr = array_column($siteArr, 'name', 'site_id');
+			foreach ($list as $key => $value) {
+				$value['avatar'] = mediaUrl($value['avatar'], 400);
+				$value['status_text'] = $this->getStatusList($value['status']);
+				$value['url'] = url('product/view', ['id'=>$value['spu_id']]);
+				$value['cate_name'] = implode(' | ', $tempArr[$value['spu_id']]);
+				$value['site_name'] = $siteArr[$value['site_id']];
+				$list[$key] = $value;
+			}
 		}
 		return $list;
 	}

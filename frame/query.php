@@ -106,7 +106,7 @@ Class Query
 
 	public function get()
 	{
-		return $this->getResult();
+		return $this->getResult() ?? [];
 	}
 
 	public function find()

@@ -33,9 +33,9 @@ class SiteService extends BaseService
         }
     }
 
-    public function getList()
+    public function getList(array $where=[])
     {
-        return $this->baseModel->getListByWhere();
+        return $this->baseModel->getListByWhere($where);
     }
 
     public function getListCache()
