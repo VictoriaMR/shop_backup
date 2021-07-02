@@ -34,6 +34,7 @@ body{SCROLLBAR-ARROW-COLOR:#2c5784;SCROLLBAR-FACE-COLOR:#D1E2EF;SCROLLBAR-DARKSH
 .w65{width:65%}
 .w70{width:70%}
 .w100{width:100%}
+select.form-control,input.form-control{width: 180px !important;}
 @media screen and (max-width:750px ){
 	.w50{width:100%;padding-left:0 !important;padding-right:0 !important}
 }
