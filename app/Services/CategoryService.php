@@ -181,6 +181,12 @@ class CategoryService extends BaseService
         return $model->insert($insert);
     }
 
+    public function getSpuIdByCateId($cateId)
+    {
+        $result = make('App\Models\ProductCategoryRelation')->where('cate_id', $cateId)->field('spu_id')->get();
+        return array_column($result, 'spu_id');
+    }
+
     public function updateStat()
     {
         $result = $this->baseModel->table('product_category_relation a')->leftJoin('product_spu b', 'a.spu_id', 'b.spu_id')->field('a.cate_id, SUM(b.sale_total) AS sale_total, SUM(b.visit_total) AS visit_total')->where('b.status', 1)->groupBy('a.cate_id')->get();

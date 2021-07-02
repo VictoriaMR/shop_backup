@@ -158,8 +158,29 @@ class ProductSpuService extends BaseService
 		return self::CACHE_INFO_KEY.$spuId.'_'.\frame\Session::get('home_language_id');
 	}
 
-	public function getStatusList()
+	public function getStatusList($status=null)
 	{
-		return [0=>'下架', 1=>'上架'];
+		$arr = [0=>'下架', 1=>'上架'];
+		if (is_null($status)) {
+			return $arr;
+		}
+		return $arr[$status] ?? '';
+	}
+
+	public function getTotal(array $where=[])
+	{
+		return make('App\Models\ProductSpu')->getCount($where);
+	}
+
+	public function getAdminList(array $where=[], $page=1, $size=20)
+	{
+		$list = make('App\Models\ProductSpu')->getListByWhere($where, '*', $page, $size);
+		foreach ($list as $key => $value) {
+			$value['avatar'] = mediaUrl($value['avatar'], 400);
+			$value['status_text'] = $this->getStatusList($value['status']);
+			$value['url'] = url('product/view', ['id'=>$value['spu_id']]);
+			$list[$key] = $value;
+		}
+		return $list;
 	}
 }

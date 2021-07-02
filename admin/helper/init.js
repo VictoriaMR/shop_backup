@@ -21,20 +21,12 @@ const HELPERINIT = {
 		return localStorage.getItem('helper_extid');
 	},
 	getDomain: function() {
-		let domain = '';
 		const host = location.host.split('.');
 		const len = host.length;
-		for (let i=0;i<2;i++) {
-			const index = len - 1 - i
-			if (i === 0) {
-				domain = host[index];
-			} else {
-				domain = host[index]+'.'+domain;
-			}
-		}
-		return domain;
+		return host[len-2]+'.'+host[len-1];
 	},
 	isItemPage: function(domain) {
+		let reg = '';
 		switch (domain) {
 			case '1688.com':
 				reg = /^https\:\/\/detail\.1688\.com\/offer\/(\d+)\.html(?:.)*/i;

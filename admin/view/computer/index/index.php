@@ -97,7 +97,7 @@
 								</li>
 								<li data-src="<?php echo url('product');?>" class="selected">
 									<span class="glyphicon glyphicon-th-list"></span>
-									<span class="ml6">产品列表</span>
+									<span class="ml6">产品管理</span>
 									<a class="glyphicon glyphicon-link right" title="新窗口打开" target="_blank" href="<?php echo url('product');?>"></a>
 								</li>
 							</ul>
