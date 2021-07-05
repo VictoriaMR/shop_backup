@@ -1,30 +1,25 @@
 <?php
-function dd(...$arg) 
-{
+function dd(...$arg){
     foreach ($arg as $value) {
 	   print_r($value);
        echo '<br />';
     }
     exit();
 }
-function vv(...$arg) 
-{
+function vv(...$arg){
     foreach ($arg as $value) {
        var_dump($value);
        echo '<br />';
     }
     exit();
 }
-function make($name)
-{
-	return \App::make($name);
+function make($name){
+	return \App::instance()->make($name);
 }
-function isAjax()
-{
+function isAjax(){
     return input('is_ajax', 0);
 }
-function isMobile($mobile = '')
-{
+function isMobile($mobile=''){
     if ($mobile != '') {
         return preg_match('/^1[34578]\d{9}$/', $mobile);
     }
@@ -42,91 +37,82 @@ function isMobile($mobile = '')
     }
     return false;
 }
-function isCli()
-{
+function isCli(){
     return stripos(php_sapi_name(), 'cli') !== false;
 }
-function isJson($string) 
-{ 
+function isJson($string) { 
     if (is_array($string)) return false;
     $string = json_decode($string, true); 
     return json_last_error() == JSON_ERROR_NONE ? $string : false;
 }
-function isWin()
-{
+function isWin(){
     return strpos(php_uname(), 'Windows') !== false;
 }
-function isPost()
-{
+function isPost(){
     return ($_SERVER['REQUEST_METHOD'] == 'POST' && (empty($_SERVER['HTTP_REFERER']) || preg_replace('~https?:\/\/([^\:\/]+).*~i', '\\1', $_SERVER['HTTP_REFERER']) == preg_replace('~([^\:]+).*~', '\\1', $_SERVER['HTTP_HOST']))) ? true : false;
 }
-function config($name = '') 
-{
+function config($name='') {
     if (empty($name)) return $GLOBALS;
     return $GLOBALS[$name] ?? [];
 }
-function dbconfig($db = 'default')
-{
+function dbconfig($db='default'){
     return config('database')[$db] ?? [];
 }
-function env($name = '', $replace = '')
-{
+function env($name='', $replace=''){
     if (defined($name)) {
         return constant($name);
     }
     return config('ENV')[$name] ?? $replace;
 }
-function redirect($url)
-{
+function redirect($url){
     header('Location:'.$url);
     exit();
 }
-function assign($name, $value = null)
-{
-    return \frame\View::getInstance()->assign($name, $value);
+function assign($name, $value=null){
+    return \frame\View::instance()->assign($name, $value);
 }
-function view($template = '', $match = true)
-{
-    return \frame\View::getInstance()->display($template, $match);
+function view($template='', $match=true){
+    return \frame\View::instance()->display($template, $match);
 }
-function url($url = null, $param = null) 
-{
-    return \Router::buildUrl($url, $param);
+function url($url=null, $param=null) {
+    return router()->buildUrl($url, $param);
 }
-function ipost($name = '', $default = null) 
-{
+function ipost($name='', $default=null){
     if (empty($name)) return $_POST;
     if (isset($_POST[$name])) {
         return $_POST[$name];
     }
     return $default;
 }
-function iget($name = '', $default = null) 
-{
+function iget($name='', $default=null){
     if (empty($name)) return $_GET;
     if (isset($_GET[$name])) {
         return $_GET[$name];
     }
     return $default;
 }
-function input()
-{
+function input(){
     return array_merge($_GET, $_POST);
 }
-function redis($db = 0) 
-{
-    return \frame\Redis::getInstance($db);
+function redis($db=0){
+    return \frame\Redis::instance($db);
 }
-function db($db=null)
-{
-    return \frame\Connection::getInstance($db);
+function session(){
+    return \frame\Session::instance();
 }
-function siteUrl($url = '')
-{
+function router(){
+    return \frame\Router::instance();
+}
+function html(){
+    return \frame\Html::instance(); 
+}
+function db($db=null){
+    return \frame\Connection::instance($db);
+}
+function siteUrl($url=''){
     return env('APP_DOMAIN').$url;
 }
-function mediaUrl($url = '', $width='')
-{
+function mediaUrl($url='', $width=''){
     if (!empty($width)) {
         $ext = pathinfo($url, PATHINFO_EXTENSION);
         $url = str_replace('.'.$ext, DS.$width.'.'.$ext, $url);
@@ -136,8 +122,7 @@ function mediaUrl($url = '', $width='')
     }
     return $url;
 }
-function getIp()
-{
+function getIp(){
     if (!empty($_SERVER['HTTP_CLIENT_IP'])) {
         return $_SERVER['HTTP_CLIENT_IP'];
     }
@@ -149,8 +134,7 @@ function getIp()
     }
     return '';
 }
-function filterUrl($str, $c='', $id='', $page='')
-{
+function filterUrl($str, $c='', $id='', $page=''){
     if (empty($str)) return '';
     $str = preg_replace('/[^-A-Za-z0-9 ]/', '', $str);
     $str = preg_replace('/( ){2,}/', ' ', $str);
@@ -161,15 +145,13 @@ function filterUrl($str, $c='', $id='', $page='')
     if (!empty($page)) {
         $str .= '-p'.$page;
     }
-    return env('APP_DOMAIN').$str.'.html';
+    return env('APP_DOMAIN').$str.(empty(env('TEMPLATE_SUFFIX')) ? '' : '.'.env('TEMPLATE_SUFFIX'));
 }
-function mysqlVersion()
-{
+function mysqlVersion(){
     $result = \frame\Connection::getInstance()->query('SELECT version() AS version')->fetch_assoc();
     return $result['version'] ?? '';
 }
-function getBrowser($agent='')
-{
+function getBrowser($agent=''){
     if (empty($agent)) {
         $agent = $_SERVER['HTTP_USER_AGENT'] ?? '';
     }
@@ -191,8 +173,7 @@ function getBrowser($agent='')
         }
     }
 }
-function getSystem($agent = '')
-{
+function getSystem($agent=''){
     if (empty($agent)) {
         $agent = $_SERVER['HTTP_USER_AGENT'] ?? '';
     }
@@ -218,30 +199,25 @@ function getSystem($agent = '')
         }
     }
 }
-function page($size=null, $total=null)
-{
+function page($size=null, $total=null){
     return \frame\Paginator::getInstance()->make($size, $total);
 }
-function now()
-{
+function now(){
     return date('Y-m-d H:i:s');
 }
-function dist($name)
-{
+function dist($name){
     if (empty($name)) {
         return '';
     }
-    $trCode = \frame\Session::get('language_tr_code');
+    $trCode = session()->get('language_tr_code');
     if (empty($trCode) || in_array($trCode, ['zh', 'cht'])) {
         return $name;
     }
     return make('App/Services/TranslateService')->getText($name, $trCode);
 }
-function appT($text)
-{
+function appT($text){
     return make('App/Services/TranslateService')->getText($text);
 }
-function utf8len($string)
-{
+function utf8len($string){
     return mb_strlen($string, 'UTF-8');
 }

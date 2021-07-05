@@ -1,101 +1,95 @@
 <?php
 class App 
 {
-	private static $_instance = null;
+	private static $_instance;
 
-    public static function instance() 
-    {
-    	if (is_null(self::$_instance)) {
+	public static function instance()
+	{
+		if (is_null(self::$_instance)) {
 			self::$_instance = new self();
 		}
 		return self::$_instance;
-    }
-
-	public static function run() 
-	{
-		//初始化方法
-		self::init();
-        //注册异常处理
-        \frame\Error::register();
-		//解析路由
-        Router::analyze();
-		return self::instance();
 	}
 
-    public function send()
-    {
-        //路由解析
-        $info = Router::$_route;
-        //中间件
-        \App\Middleware\VerifyToken::handle($info);
-        //静态js,css
-        if ($info['class'] == 'Admin') {
-            \frame\Html::buildJs(['jquery', 'common', 'bootstrap', 'bootstrap-plugin']);
-            \frame\Html::buildCss(['computer/common', 'computer/bootstrap', 'computer/space', 'icon']);
-        } else {
-            \frame\Html::buildJs(['jquery', 'common']);
-            \frame\Html::buildCss(['icon', (isMobile() ? 'mobile/common' : 'computer/common')]);
-            if (empty(\frame\Session::get('site_language_name'))) {
-                \frame\Session::set('site_language_name', 'en');
-            }
-        }
-        //执行方法
-        $class = 'App\\Controllers\\'.$info['class'].'\\'.$info['path'].'Controller';
-        if (is_callable([self::autoload($class), $info['func']])) {
-            call_user_func_array([self::autoload($class), $info['func']], []);
-        }
-        $this->runover();
-    }
+	public static function convertToline($name)
+	{
+		return strtolower(preg_replace('/([a-z])([A-Z])/', '$1_$2', $name));
+	}
 
-    public function load($template = '')
-    {
-        return \frame\View::load($template);
-    }
+	public static function convertToUp($str, $ucfirst=false)
+	{
+		$str = ucwords(str_replace('_', ' ', $str));
+		$str = str_replace(' ','',lcfirst($str));
+		return $ucfirst ? ucfirst($str) : $str;
+	}
 
-	public static function init() 
+	public function run() 
+	{
+		//初始化方法
+		$this->init();
+		//注册异常处理
+		\frame\Error::instance()->register();
+		$this->send();
+	}
+
+	public function send()
+	{
+		//路由解析
+		$info = router()->analyze()->getRoute();
+		//中间件
+		\app\middleware\VerifyToken::instance()->handle($info);
+		//静态js,css
+		if ($info['class'] == 'Admin') {
+			html()->buildJs(['jquery', 'common', 'bootstrap', 'bootstrap-plugin']);
+			html()->buildCss(['computer/common', 'computer/bootstrap', 'computer/space', 'icon']);
+		} else {
+			html()->buildJs(['jquery', 'common']);
+			html()->buildCss(['icon', (APP_IS_MOBILE ? 'mobile/common' : 'computer/common')]);
+			if (empty(session()->get('site_language_name'))) {
+				session()->set('site_language_name', 'en');
+			}
+		}
+		//执行方法
+		$class = 'App\\Controllers\\'.$info['class'].'\\'.$info['path'].'Controller';
+		if (is_callable([self::autoload($class), $info['func']])) {
+			call_user_func_array([self::autoload($class), $info['func']], []);
+		}
+		$this->runover();
+	}
+
+	public function init() 
 	{
 		spl_autoload_register([__CLASS__ , 'autoload']);
 	}
 
-	private static function autoload($abstract) 
-    {
-        $abstract = strtr($abstract, '/', '\\');
-        //容器加载
-        if (empty(Container::$_building[$abstract])) {
-            $file = strtr($abstract, '\\', DS);
-            if (strpos($file, 'frame') === false) {
-                $file = lcfirst($file);
-            } else {
-                $file = strtolower($file);
-            }
-            $file = ROOT_PATH.$file.'.php';
-            if (is_file($file)) {
-    			require_once $file;
-        		$rst = Container::getInstance()->autoload($abstract);
-                if ($rst !== false) {
-                    return $rst;
-                }
-            } 
-            if (env('APP_DEBUG')) {
-                throw new \Exception($file.' to autoload '.$abstract.' was failed!', 1);
-            } else {
-                redirect(url());
-            }
-        }
-        return Container::$_building[$abstract];
-    }
+	public function make($abstract)
+	{
+		return $this->autoload($abstract);
+	}
 
-    public static function make($abstract)
-    {
-    	return self::autoload($abstract);
-    }
+	private function autoload($abstract) 
+	{
+		$file = strtr($abstract, '\\', DS);
+		$tempArr = explode(DS, $file);
+		$tempAbs = array_pop($tempArr);
+		$file = ROOT_PATH.self::nameFormat(implode(DS, $tempArr)).DS.$tempAbs.'.php';
+		if (is_file($file)) {
+			return \frame\Container::instance()->autoload($abstract, $file);
+		}
+		if (env('APP_DEBUG')) {
+			throw new \Exception($file.' to autoload '.$abstract.' was failed!', 1);
+		} else {
+			redirect(url(404));
+		}
+		throw new \Exception($file.' to autoload '.$abstract.' was failed!', 1);
+	}
 
-    private function runover()
-    {
-        if (env('APP_DEBUG')) {
-            \frame\Debug::runlog();
-            \frame\Debug::init();
-        }
-        exit();
-    }
+	private function runover()
+	{
+		if (env('APP_DEBUG')) {
+			\frame\Debug::runlog();
+			\frame\Debug::init();
+		}
+		exit();
+	}
 }

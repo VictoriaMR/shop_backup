@@ -1,8 +1,8 @@
 <?php
 
-namespace App\Controllers\Admin;
+namespace app\controller\admin;
 
-use App\Controllers\Controller;
+use app\controller\Controller;
 
 class SystemInfoController extends Controller
 {

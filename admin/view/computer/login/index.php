@@ -1,4 +1,3 @@
-<?php $this->load('common/header');?>
 <div id="login-bg">
 	<img src="<?php echo siteUrl('image/computer/login_bg.jpg');?>">
 </div>
@@ -33,4 +32,3 @@ $(function(){
 	LOGIN.init();
 });
 </script>
-<?php $this->load('common/footer');?>

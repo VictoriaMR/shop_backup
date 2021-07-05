@@ -1,37 +1,49 @@
 <?php
+
+namespace frame;
+
 final class Router
 {
-	public static $_route = []; //路由
+	static private $_instance;
+	protected $_route = []; //路由
 
-	public static function analyze()
+	public static function instance() 
+    {
+        if (is_null(self::$_instance)) {
+            self::$_instance = new self();
+        }
+        return self::$_instance;
+    }
+
+	public function analyze()
 	{
 		$pathInfo = trim($_SERVER['REQUEST_URI'], DS);
-		self::$_route['class'] = ucfirst(APP_TEMPLATE_TYPE);
+		$this->_route['class'] = APP_TEMPLATE_TYPE;
 		if (empty($pathInfo)) {
-			self::$_route['path'] = 'Index';
-			self::$_route['func'] = 'index';
+			$this->_route['path'] = 'index';
+			$this->_route['func'] = 'index';
 		} else {
 			$pathInfo = parse_url($pathInfo);
 			if (empty($pathInfo['path'])) {
-				self::$_route['path'] = 'Index';
-				self::$_route['func'] = 'index';
+				$this->_route['path'] = 'index';
+				$this->_route['func'] = 'index';
 			} else {
-				$pathInfo['path'] = str_replace('.html', '', $pathInfo['path']);
+				$pathInfo['path'] = str_replace(env('TEMPLATE_SUFFIX'), '', $pathInfo['path']);
 				if (strpos($pathInfo['path'], '-') === false) {
 					$pathInfo = explode(DS, $pathInfo['path']);
 			        switch (count($pathInfo)) {
 			        	case 0:
-			        		self::$_route['path'] = 'Index';
-				        	self::$_route['func'] = 'index';
+			        		$this->_route['path'] = 'index';
+				        	$this->_route['func'] = 'index';
 			        		break;
 			        	case 1:
-			        		self::$_route['path'] = ucfirst(implode(DS, $pathInfo));
-				        	self::$_route['func'] = 'index';
+			        		$this->_route['path'] = \App::convertToline(implode(DS, $pathInfo));
+				        	$this->_route['func'] = 'index';
 			        		break;
 			        	default:
 			        		$func = array_pop($pathInfo);
-			        		self::$_route['path'] = ucfirst(implode(DS, $pathInfo));
-			        		self::$_route['func'] = lcfirst($func);
+			        		$this->_route['path'] = \App::convertToline(implode(DS, $pathInfo));
+			        		$this->_route['func'] = lcfirst($func);
 			        		break;
 			        }
 				} else {
@@ -46,36 +58,41 @@ final class Router
 					$temp = array_pop($pathInfo);
 					switch ($temp) {
 						case 'c':
-							self::$_route['path'] = 'Category';
+							$this->_route['path'] = 'category';
 							$_GET['cid'] = $id;
 							break;
 						case 'p':
 						case 'k':
-							self::$_route['path'] = 'Product';
+							$this->_route['path'] = 'product';
 							$_GET['s'.$temp.'u_id'] = $id;
 							break;
 						default:
-							self::$_route['path'] = 'Index';
+							$this->_route['path'] = 'index';
 							break;
 					}
-					self::$_route['func'] = 'index';
+					$this->_route['func'] = 'index';
 				}
 			}
 		}
 		array_shift($_GET);
-		if (count(self::$_route) != 3) {
+		if (count($this->_route) != 3) {
 			throw new \Exception(' router analyed error', 1);
 		}
-		return true;
+		return $this;
 	}
 
-	public static function buildUrl($url = null, $param = null)
+	public function getRoute()
+	{
+		return $this->_route;
+	}
+
+	public function buildUrl($url=null, $param=null)
 	{
 		if (is_null($url)) {
-			$url = lcfirst(self::$_route['path']) . DS . lcfirst(self::$_route['func']);
+			$url = \App::convertToline($this->_route['path'].DS.$this->_route['func']);
 		}
 		if (!empty($url)) {
-			$url .= '.html';
+			$url .= empty(env('TEMPLATE_SUFFIX')) ? '' : '.'.env('TEMPLATE_SUFFIX');
 		}
 		if (empty($param)) {
 			$param = iget();

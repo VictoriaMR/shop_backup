@@ -16,12 +16,16 @@ class View
         return self::$_instance;
     }
 
-    public function display($template = '', $match = true)
+    public function display($template='', $match=true)
     {
-        $template = $this->getTemplate($template, $match);
+        return $this->fetch(ROOT_PATH.APP_TEMPLATE_TYPE.DS.'view'.DS.'layout.php', ['layout_include_path' => $this->getTemplate($template, $match)]);
+    }
+
+    protected function fetch($template, array $data=[])
+    {
         if (is_file($template)) {
-            extract(self::$data);
-            include($template);
+            extract(array_merge(self::$data, $data), EXTR_OVERWRITE);
+            include $template;
         } else {
             throw new \Exception($template.' was not exist!', 1);
         }
@@ -38,7 +42,7 @@ class View
                 $_route = \Router::$_route;
                 $template = lcfirst($_route['path']).DS.lcfirst($_route['func']);
             }
-            $template = APP_TEMPLATE_TYPE.DS.'view'.DS.$matchPath.$template;
+            $template = strtolower(preg_replace('/([a-z])([A-Z])/', '$1_$2', APP_TEMPLATE_TYPE.DS.'view'.DS.$matchPath.$template));
         }
         return ROOT_PATH.$template.'.php';
     }
@@ -53,8 +57,9 @@ class View
         return $this;
     }
 
-    public static function load($template = '', $match = true)
+    public function load($template = '', $match = true)
     {
-        return self::getInstance()->display($template, $match);
+        $template = self::getInstance()->getTemplate($template, $match);
+        return self::getInstance()->fetch($template);
     }
 }

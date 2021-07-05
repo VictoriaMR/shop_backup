@@ -6,4 +6,5 @@ define('ROOT_PATH', strtr(realpath(dirname(__FILE__).'/../').'/', '\\', '/'));
 define('APP_TEMPLATE_TYPE', 'bag');
 define('APP_STATIC', false);
 define('APP_SITE_ID', 80);
+define('TEMPLATE_SUFFIX', 'html');
 require ROOT_PATH.'frame/start.php';
