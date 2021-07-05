@@ -4,7 +4,7 @@ namespace frame;
 
 class Session
 {
-	private $_instance;
+	private static $_instance;
 
 	public static function instance()
 	{

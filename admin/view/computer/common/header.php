@@ -9,9 +9,9 @@
     <link rel="shortcut icon" href="/favicon.ico" type="image/x-icon">
     <link rel="stylesheet" type="text/css" href="<?php echo siteUrl('static/c_common.css');?>">
     <script type="text/javascript" src="<?php echo siteUrl('static/c_common.js');?>"></script>
-    <?php foreach (\frame\Html::getCss() as $value) {?>
+    <?php foreach (html()->getCss() as $value) {?>
     <link rel="stylesheet" type="text/css" href="<?php echo env('APP_DOMAIN').$value;?>"><?php }?>
-    <?php foreach (\frame\Html::getJs() as $value) {?>
+    <?php foreach (html()->getJs() as $value) {?>
     <script type="text/javascript" src="<?php echo env('APP_DOMAIN').$value;?>"></script>
     <?php }?>
 </head>

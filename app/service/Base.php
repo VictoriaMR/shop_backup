@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Services;
+namespace app\service;
 
 /**
  * 业务模型基类.

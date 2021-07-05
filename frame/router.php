@@ -37,13 +37,13 @@ final class Router
 				        	$this->_route['func'] = 'index';
 			        		break;
 			        	case 1:
-			        		$this->_route['path'] = \App::convertToline(implode(DS, $pathInfo));
+			        		$this->_route['path'] = implode(DS, $pathInfo);
 				        	$this->_route['func'] = 'index';
 			        		break;
 			        	default:
 			        		$func = array_pop($pathInfo);
-			        		$this->_route['path'] = \App::convertToline(implode(DS, $pathInfo));
-			        		$this->_route['func'] = lcfirst($func);
+			        		$this->_route['path'] = implode(DS, $pathInfo);
+			        		$this->_route['func'] = $func;
 			        		break;
 			        }
 				} else {

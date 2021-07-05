@@ -10,16 +10,16 @@ class LoginController extends Controller
 	{	
 		html()->addCss();
 		html()->addJs();
-		Session::set('admin', []);
+		session()->set('admin', []);
 		$this->assign('_title', '登录');
 		return view();
 	}
 
 	public function loginCode()
 	{
-		$imageService = make('App/Services/ImageService');
-		$code = make('App/Services/Base')->getSalt();
-		Session::set('admin_login_code', $code);
+		$imageService = make('app/service/ImageService');
+		$code = make('app/service/Base')->getSalt();
+		session()->set('admin_login_code', $code);
 		$imageService->verifyCode($code, 80, 34);
 	    exit();
 	}
@@ -40,7 +40,7 @@ class LoginController extends Controller
 		$result = $memberService->login($phone, $password, 'admin');
 
 		if ($result) {
-	        $logService = \App::make('App\Services\Admin\LogService');
+	        $logService = make('app/service/admin/LogService');
 			$data = [
 	            'mem_id' => Session::get('admin_mem_id'),
 	            'remark' => '登录管理后台',

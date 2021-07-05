@@ -50,7 +50,7 @@ class App
 			}
 		}
 		//执行方法
-		$class = 'App\\Controllers\\'.$info['class'].'\\'.$info['path'].'Controller';
+		$class = 'app\\controller\\'.$info['class'].'\\'.$info['path'].'Controller';
 		if (is_callable([self::autoload($class), $info['func']])) {
 			call_user_func_array([self::autoload($class), $info['func']], []);
 		}
@@ -70,18 +70,17 @@ class App
 	private function autoload($abstract) 
 	{
 		$file = strtr($abstract, '\\', DS);
-		$tempArr = explode(DS, $file);
+		$tempArr = explode(DS, $abstract);
 		$tempAbs = array_pop($tempArr);
-		$file = ROOT_PATH.self::nameFormat(implode(DS, $tempArr)).DS.$tempAbs.'.php';
+		$file = ROOT_PATH.implode(DS, $tempArr).DS.ucfirst($tempAbs).'.php';
 		if (is_file($file)) {
-			return \frame\Container::instance()->autoload($abstract, $file);
+			return \frame\Container::instance()->autoload(strtr($abstract, DS, '\\'), $file);
 		}
-		if (env('APP_DEBUG')) {
+		if (!env('APP_DEBUG')) {
 			throw new \Exception($file.' to autoload '.$abstract.' was failed!', 1);
 		} else {
 			redirect(url(404));
 		}
-		throw new \Exception($file.' to autoload '.$abstract.' was failed!', 1);
 	}
 
 	private function runover()

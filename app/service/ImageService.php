@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Services;
+namespace app\service;
 
 class ImageService
 {
@@ -24,9 +24,9 @@ class ImageService
 		    //随机码宽度
 		    $fontsize = rand(18, 24);
 		    $angle = rand(0, 30);
-		    $x = ($i * $width / $len) + 5;
+		    $x = ($i * ($width - 10) / $len) + 5;
 		    //随机码高度
-		    $y = rand($fontsize, $height - 7);
+		    $y = rand($fontsize, $height - 4);
 		    //填充当前字符入画布
 		    imagettftext($image, $fontsize, rand(0, 30), $x, $y, $fontcolor, self::FONTFILE, $code[$i]);
     	}

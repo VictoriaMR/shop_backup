@@ -8,7 +8,7 @@ class View
 
     protected static $data = [];
 
-    public static function getInstance() 
+    public static function instance() 
     {
         if (is_null(self::$_instance)) {
             self::$_instance = new self();
@@ -39,10 +39,10 @@ class View
                 $matchPath = (APP_IS_MOBILE ? 'mobile' : 'computer').DS;
             }
             if (empty($template)) {
-                $_route = \Router::$_route;
-                $template = lcfirst($_route['path']).DS.lcfirst($_route['func']);
+                $_route = router()->getRoute();
+                $template = $_route['path'].DS.$_route['func'];
             }
-            $template = strtolower(preg_replace('/([a-z])([A-Z])/', '$1_$2', APP_TEMPLATE_TYPE.DS.'view'.DS.$matchPath.$template));
+            $template = \App::convertToline(APP_TEMPLATE_TYPE.DS.'view'.DS.$matchPath.$template);
         }
         return ROOT_PATH.$template.'.php';
     }
@@ -59,7 +59,7 @@ class View
 
     public function load($template = '', $match = true)
     {
-        $template = self::getInstance()->getTemplate($template, $match);
-        return self::getInstance()->fetch($template);
+        $template = self::instance()->getTemplate($template, $match);
+        return self::instance()->fetch($template);
     }
 }
