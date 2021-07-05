@@ -59,7 +59,7 @@ class ProductSpuService extends BaseService
 		return $info;
 	}
 
-	public function getInfo($spuId)
+	public function getInfo($spuId, $lanId=1)
 	{
 		$spuId = (int)$spuId;
 		if ($spuId < 1) {
@@ -69,7 +69,6 @@ class ProductSpuService extends BaseService
 		if (empty($info)) {
 			return false;
 		}
-		$lanId = \frame\Session::get('home_language_id');
 		$info['avatar'] = mediaUrl($info['avatar']);
 		//价格格式化
 		$languageService = make('App\Services\LanguageService');

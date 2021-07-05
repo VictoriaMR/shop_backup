@@ -12,7 +12,7 @@ class ProductController extends Controller
         $this->_arr = [
             'index' => 'SPU列表',
         ];
-		$this->_default = '分类管理';
+		$this->_default = '产品管理';
 		$this->_init();
 	}
 
@@ -72,6 +72,20 @@ class ProductController extends Controller
 		$this->assign('size', $size);
 		$this->assign('list', $list ?? []);
 
+		return view();
+	}
+
+	public function view()
+	{
+		service();
+		Html::addCss();
+		$id = (int)iget('id');
+
+		$spuService = make('App/Services/ProductSpuService');
+		$info = $spuService->getInfo($id);
+		dd($info);
+		$this->_arr['view'] = 'SPU详情';
+		$this->_init();
 		return view();
 	}
 }

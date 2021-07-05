@@ -8,7 +8,7 @@ class Controller
     protected $_tag;
     protected $_arr;
     protected $_default;
-    protected $_tagShow=true;
+    protected $_tagShow = true;
     
 	protected function result($code, $data=[], $options=[])
     {

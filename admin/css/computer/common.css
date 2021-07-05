@@ -66,7 +66,7 @@ body{SCROLLBAR-ARROW-COLOR:#2c5784;SCROLLBAR-FACE-COLOR:#D1E2EF;SCROLLBAR-DARKSH
 .switch_status.on{left:-3px}
 .switch_status.off{left:-36px}
 .glyphicon:hover{color:#e7502b}
-.nav-left .glyphicon:hover{color:#fff}
+.nav-left .left-one .glyphicon:hover{color:#fff}
 .glyphicon.disabled{color:#ccc;cursor:not-allowed}
 .avatar-hover{position:relative;height:36px;cursor:pointer}
 .avatar-hover img{margin:0px;padding:0px;vertical-align:top;height:36px;width:36px;border-radius:50%;box-sizing:border-box;position:absolute;left:0px;bottom:0px;transition:700ms;max-width:unset;max-height:unset}

@@ -1,46 +1,42 @@
 <?php $this->load('common/header');?>
 <div class="container-fluid">
 	<form action="<?php echo url();?>" class="form-inline">
-		<div class="mt12">
-			<div class="form-group mt10 mr20">
-				<input type="text" class="form-control" name="spu_id" value="<?php echo empty($spuId) ? '' : $spuId;?>" placeholder="SPU ID" autocomplete="off">
-			</div>
-			<div class="form-group mt10 mr20">
-				<select class="form-control" name="status" style="min-width:180px;">
-					<option value="-1">请选择状态</option>
-					<?php if (!empty($statusList)) {
-						foreach ($statusList as $key => $value) {?>
-					<option <?php if ($status==$key){ echo 'selected';}?> value="<?php echo $key;?>"><?php echo $value;?></option>
-					<?php } }?>
-				</select>
-			</div>
-			<div class="form-group mt10 mr20">
-				<select class="form-control" name="site" style="min-width:180px;">
-					<option value="-1">请选择站点</option>
-					<?php if (!empty($siteList)) {
-						foreach ($siteList as $key => $value) { if ($key <= 0) {continue;}?>
-					<option <?php if ($site==$key){ echo 'selected';}?> value="<?php echo $key;?>"><?php echo $value;?></option>
-					<?php } }?>
-				</select>
-			</div>
-			<div class="form-group mt10 mr20">
-				<select class="form-control" name="cate" style="min-width:180px;">
-					<option value="-1">请选择分类</option>
-					<?php if (!empty($cateList)) {
-						foreach ($cateList as $key => $value) {?>
-					<option <?php if ($cate==$value['cate_id']){ echo 'selected';}?> value="<?php echo $value['cate_id'];?>" <?php if ($value['level'] === 0){ echo 'disabled="disabled"';}?>><?php echo $value['level']>0 ? '&nbsp;&nbsp;&nbsp;': '';?><?php echo $value['name'];?></option>
-					<?php } }?>
-				</select>
-			</div>
+		<div class="form-group mt10 mr20">
+			<input type="text" class="form-control" name="spu_id" value="<?php echo empty($spuId) ? '' : $spuId;?>" placeholder="SPU ID" autocomplete="off">
 		</div>
-		<div class="mt12">
-			<div class="mr20 form-group mt10">
-				<input class="form-control form_datetime" type="text" value="<?php echo $stime;?>" name="stime" placeholder="开始时间" autocomplete="off"> - 
-				<input class="form-control form_datetime" type="text" value="<?php echo $etime;?>" name="etime" placeholder="结束时间" autocomplete="off">
-			</div>
-			<div class="mr20 form-group mt10">
-				<button class="btn btn-info" type="submit"><i class="glyphicon glyphicon-search"></i> 查询</button>
-			</div>
+		<div class="form-group mt10 mr20">
+			<select class="form-control" name="status" style="min-width:180px;">
+				<option value="-1">请选择状态</option>
+				<?php if (!empty($statusList)) {
+					foreach ($statusList as $key => $value) {?>
+				<option <?php if ($status==$key){ echo 'selected';}?> value="<?php echo $key;?>"><?php echo $value;?></option>
+				<?php } }?>
+			</select>
+		</div>
+		<div class="form-group mt10 mr20">
+			<select class="form-control" name="site" style="min-width:180px;">
+				<option value="-1">请选择站点</option>
+				<?php if (!empty($siteList)) {
+					foreach ($siteList as $key => $value) { if ($key <= 0) {continue;}?>
+				<option <?php if ($site==$key){ echo 'selected';}?> value="<?php echo $key;?>"><?php echo $value;?></option>
+				<?php } }?>
+			</select>
+		</div>
+		<div class="form-group mt10 mr20">
+			<select class="form-control" name="cate" style="min-width:180px;">
+				<option value="-1">请选择分类</option>
+				<?php if (!empty($cateList)) {
+					foreach ($cateList as $key => $value) {?>
+				<option <?php if ($cate==$value['cate_id']){ echo 'selected';}?> value="<?php echo $value['cate_id'];?>" <?php if ($value['level'] === 0){ echo 'disabled="disabled"';}?>><?php echo $value['level']>0 ? '&nbsp;&nbsp;&nbsp;': '';?><?php echo $value['name'];?></option>
+				<?php } }?>
+			</select>
+		</div>
+		<div class="mr20 form-group mt10">
+			<input class="form-control form_datetime" type="text" value="<?php echo $stime;?>" name="stime" placeholder="开始时间" autocomplete="off"> - 
+			<input class="form-control form_datetime" type="text" value="<?php echo $etime;?>" name="etime" placeholder="结束时间" autocomplete="off">
+		</div>
+		<div class="mr20 form-group mt10">
+			<button class="btn btn-info" type="submit"><i class="glyphicon glyphicon-search"></i> 查询</button>
 		</div>
 		<div class="clear"></div>
 	</form>
