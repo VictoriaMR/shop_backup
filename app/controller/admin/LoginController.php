@@ -1,17 +1,15 @@
 <?php
 
-namespace App\Controllers\Admin;
+namespace app\controller\admin;
 
-use App\Controllers\Controller;
-use frame\Html;
-use frame\Session;
+use app\controller\Controller;
 
 class LoginController extends Controller
 {
 	public function index()
 	{	
-		Html::addCss();
-		Html::addJs();
+		html()->addCss();
+		html()->addJs();
 		Session::set('admin', []);
 		$this->assign('_title', '登录');
 		return view();

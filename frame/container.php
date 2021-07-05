@@ -1,12 +1,15 @@
 <?php
+
+namespace frame;
+
 final class Container
 {
-	static private $_instance = null;
-	static public $_building = [];
-    public function __construct() {}
+	static private $_instance;
+	private $_building = [];
+    private function __construct() {}
     private function __clone() {}
 
-	public static function getInstance()
+	public static function instance() 
     {
         if (is_null(self::$_instance)) {
             self::$_instance = new self();
@@ -14,17 +17,13 @@ final class Container
         return self::$_instance;
     }
 
-    public function autoload($concrete) 
+    public function autoload($concrete, $file) 
     {
-        return self::make($concrete);
-    }
-
-    private function make($concrete)
-    {
-    	if (isset(self::$_building[$concrete])) {
-    		return self::$_building[$concrete];
+        if (isset($this->_building[$concrete])) {
+            return $this->_building[$concrete];
         }
-        return $this->build($concrete);;
+        require $file;
+        return $this->build($concrete);
     }
 
     private function build($concrete)
@@ -46,8 +45,7 @@ final class Container
         } else {
             $object = $reflector->newInstanceArgs($this->getDependencies($constructor->getParameters()));
         }
-        self::$_building[$concrete] = $object;
-
+        $this->_building[$concrete] = $object;
         return $object;
     }
 
@@ -76,6 +74,6 @@ final class Container
     //通过容器解决依赖
     private function resolvedClass(ReflectionParameter $parameter)
     {
-        return $this->make($parameter->getType()->getName());
+        return $this->build($parameter->getType()->getName());
     }
 }

@@ -1,9 +1,8 @@
 <?php
 
-namespace App\Controllers\Prettybag;
+namespace app\controller\bag;
 
-use App\Controllers\Controller;
-use frame\Html;
+use app\controller\Controller;
 
 class UserInfoController extends Controller
 {

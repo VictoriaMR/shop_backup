@@ -4,6 +4,16 @@ namespace frame;
 
 class Session
 {
+	private $_instance;
+
+	public static function instance()
+	{
+		if (is_null(self::$_instance)) {
+			self::$_instance = new self();
+		}
+		return self::$_instance;
+	}
+
 	public static function set($key='', $data = [])
 	{
 		if (empty($key)) {

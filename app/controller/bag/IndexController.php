@@ -1,8 +1,8 @@
 <?php
 
-namespace App\Controllers\Prettybag;
+namespace app\controller\bag;
 
-use App\Controllers\Controller;
+use app\controller\Controller;
 use frame\Html;
 
 class IndexController extends Controller

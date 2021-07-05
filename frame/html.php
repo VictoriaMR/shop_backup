@@ -4,46 +4,56 @@ namespace frame;
 
 class Html
 {
-    public static $_CSS = [];
-    public static $_JS = [];
+    protected $_CSS = [];
+    protected $_JS = [];
 
-    public static function addCss($name = '')
+    private static $_instance;
+
+    public static function instance() 
+    {
+        if (is_null(self::$_instance)) {
+            self::$_instance = new self();
+        }
+        return self::$_instance;
+    }
+
+    public function addCss($name = '')
     {
         $matchPath = '';
         if (env('APP_VIEW_MATCH')) {
             $matchPath = (APP_IS_MOBILE ? 'mobile' : 'computer') . DS;
         }
         if (empty($name)) {
-            $_route = \Router::$_route;
+            $_route = router()->getRoute();
             $name = lcfirst($_route['path']) . DS . $_route['func'];
         }
-        self::$_CSS[] = 'css' . DS . $matchPath . $name . '.css';
+        $this->_CSS[] = 'css' . DS . $matchPath . $name . '.css';
         return true;
     }
 
-    public static function addJs($name = '', $public = false)
+    public function addJs($name = '', $public = false)
     {
         $matchPath = '';
         if (env('APP_VIEW_MATCH')) {
             $matchPath = (APP_IS_MOBILE ? 'mobile' : 'computer') . DS;
         }
         if (empty($name)) {
-            $_route = \Router::$_route;
+            $_route = router()->getRoute();
             $name = lcfirst($_route['path']) . DS . $_route['func'];
         }
-        self::$_JS[] = 'js' . DS . $matchPath . $name . '.js';
+        $this->_JS[] = 'js' . DS . $matchPath . $name . '.js';
         return true;
     }
 
-    public static function getCss()
+    public function getCss()
     {
-        if (empty(self::$_CSS)) {
+        if (empty($this->_CSS)) {
             return [];
         }
-        if (count(self::$_CSS) == 1) {
-            return self::$_CSS;
+        if (count($this->_CSS) == 1) {
+            return $this->_CSS;
         }
-        $_route = \Router::$_route;
+        $_route = router()->getRoute();
         $path = ROOT_PATH.APP_TEMPLATE_TYPE.DS;
         $dir = $path.'static';
         $file = DS.strtolower($_route['path'].'_'.$_route['func']).'.css';
@@ -51,7 +61,7 @@ class Html
             return ['static'.$file];
         }
         $data = '';
-        foreach (self::$_CSS as $key => $value) {
+        foreach ($this->_CSS as $key => $value) {
             $source = $path.$value;
             $data .= trim(file_get_contents($source));
         }
@@ -63,15 +73,15 @@ class Html
         return ['static'.$file];
     }
 
-    public static function getJs()
+    public function getJs()
     {
-        if (empty(self::$_JS)) {
+        if (empty($this->_JS)) {
             return [];
         }
-        if (count(self::$_JS) == 1) {
-            return self::$_JS;
+        if (count($this->_JS) == 1) {
+            return $this->_JS;
         }
-        $_route = \Router::$_route;
+        $_route = router()->getRoute();
         $path = ROOT_PATH.APP_TEMPLATE_TYPE.DS;
         $dir = $path.'static';
         $file = DS.strtolower($_route['path'].'_'.$_route['func']).'.js';
@@ -79,7 +89,7 @@ class Html
             return ['static'.$file];
         }
         $data = '';
-        foreach (self::$_JS as $key => $value) {
+        foreach ($this->_JS as $key => $value) {
             $source = $path.$value;
             $data .= trim(file_get_contents($source));
         }
@@ -90,7 +100,7 @@ class Html
         return ['static'.$file];
     }
 
-    public static function buildJs($data)
+    public function buildJs($data)
     {
         if (empty($data)) {
             return false;
@@ -120,7 +130,7 @@ class Html
         return file_put_contents($dir.$file, $jsStr);
     }
 
-    public static function buildCss($data)
+    public function buildCss($data)
     {
         if (empty($data)) {
             return false;
