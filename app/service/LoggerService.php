@@ -25,7 +25,7 @@ class LoggerService extends BaseService
 		$insert = [
 			'mem_id' => (int)Session::get(APP_TEMPLATE_TYPE.'_mem_id'),
 			'lan_id' => (int)Session::get('site_language_id'),
-			'is_moblie' => APP_IS_MOBILE ? 1 : 0,
+			'is_moblie' => IS_MOBILE ? 1 : 0,
 			'ip' => getIp(),
 			'path' => $_SERVER['REQUEST_URI'] ?? '',
 			'system' => getSystem(),

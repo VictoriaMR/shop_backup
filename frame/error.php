@@ -4,16 +4,6 @@ namespace frame;
 
 class Error
 {
-	private static $_instance = null;
-
-	public static function instance() 
-	{
-		if (is_null(self::$_instance)) {
-			self::$_instance = new self();
-		}
-		return self::$_instance;
-	}
-
 	public function register()
 	{
 		if (env('APP_DEBUG')) {
@@ -21,14 +11,14 @@ class Error
 		} else {
 			error_reporting(0);
 		}
-		set_error_handler([self::instance(), 'errorDebug'], E_ALL);
-		set_exception_handler([self::instance(), 'exceptionDebug']);
-		register_shutdown_function([self::instance(), 'shutdownDebug']);
+		set_error_handler([$this, 'errorDebug']);
+		set_exception_handler([$this, 'exceptionDebug']);
+		register_shutdown_function([$this, 'shutdownDebug']);
 	}
 
 	public function errorDebug($errno, $errStr, $errfile = '', $errline = '')
 	{
-		throw new \ErrorException($errStr, 0, $errno, $errfile, $errline);
+		$this->errorEcho($errfile, $errline, $errStr);
 	}
 
 	public function exceptionDebug($exception)
@@ -46,13 +36,24 @@ class Error
 
 	protected function echoParmas()
 	{
-
+		$param = request()->input();
+		if (!empty($param)) {
+			$count = 0;
+			foreach ($param as $key => $value) {
+				if ($count == 0) {
+					echo 'Parmas: '.$key.' => '.$value.'<br />';
+				} else {
+					echo '--------'.$key.' => '.$value.'<br />';
+				}
+				$count ++;
+			}
+		}
 	}
 
 	protected function errorEcho($file, $line, $message)
 	{
-		if (!isCli()) {
-			\frame\Debug::runlog($message);
+		if (!IS_CLI) {
+			make('frame/Debug')->runlog($message);
 			if (env('APP_DEBUG')) {
 				echo 'File: '.$file.'<br />';
 				echo 'Line: '.$line.'<br />';

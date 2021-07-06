@@ -45,14 +45,14 @@ class Controller
         $this->result('10000', [], ['message' => $message]);
     }
 
-    protected function getTime()
-    {
-        return date('Y-m-d H:i:s');
-    }
-
     protected function assign($name, $value = null)
     {
-        return assign($name, $value);
+        return view()->assign($name, $value);
+    }
+
+    protected function view()
+    {
+        return view()->display();
     }
 
     protected function _init()

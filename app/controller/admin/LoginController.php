@@ -12,7 +12,7 @@ class LoginController extends Controller
 		html()->addJs();
 		session()->set('admin', []);
 		$this->assign('_title', '登录');
-		return view();
+		$this->view();
 	}
 
 	public function loginCode()
@@ -21,7 +21,6 @@ class LoginController extends Controller
 		$code = make('app/service/Base')->getSalt();
 		session()->set('admin_login_code', $code);
 		$imageService->verifyCode($code, 80, 34);
-	    exit();
 	}
 
 	public function login() 

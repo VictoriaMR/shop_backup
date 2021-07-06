@@ -2,46 +2,41 @@
 
 namespace frame;
 
-class Connection
+final class Connection
 {
-	private $conn;
-	private static $_instance = [];
-	private function __construct() {}
+	private $_connect;
+	private $_selectdb;
 	private function __clone() {}
 
-	private static function connect($host, $username, $password, $port = '3306', $database = '', $charset='utf8')
+	private function connect($host, $username, $password, $port='3306', $database='', $charset='utf8')
 	{
-		$conn =  new \mysqli($host, $username, $password, $database, $port);
-		if($conn->connect_error){
-			throw new \Exception('Connect Error ('.$conn->connect_errno.') '.$conn->connect_error, 1);
+		$this->_connect = new \mysqli($host, $username, $password, $database, $port);
+		if ($this->_connect->connect_error) {
+			throw new \Exception('Connect Error ('.$this->_connect->connect_errno.') '.$this->_connect->connect_error, 1);
 		}
-		$conn->set_charset($charset);
-		return $conn;
+		$this->_connect->set_charset($charset);
 	}
 
-	/**
-	 * @method 数据库链接单例方法
-	 * @date   2020-05-25
-	 */
-	public static function getInstance($db = null, $database = null) 
+	public function setDb($db)
 	{
 		if (is_null($db)) $db = 'default';
-		if (is_null($database)) $database = env('DB_DATABASE');
-
-		if (empty(self::$_instance[$db][$database])) {
-			$config = dbconfig($db);
-			if (empty($config)) {
-				throw new \Exception('Connect Error： Cannot found '.$db.' in config/database', 1);
-			}
-			self::$_instance[$db][$database] = self::connect(
+		$config = config('database')[$db];
+		$database = $config['db_database'] ?? '';
+		if (is_null($this->_connect)) {
+			$this->connect(
 				$config['db_host'] ?? '', 
 				$config['db_username'] ?? '', 
 				$config['db_password'] ?? '', 
 				$config['db_port'] ?? '', 
-				$config['db_database'] ?? '', 
+				$database, 
 				$config['db_charset'] ?? ''
 			);
+			$this->_selectdb = $database;
 		}
-		return self::$_instance[$db][$database];
+		if ($this->_selectdb != $database) {
+			$this->_connect->select_db($database);
+			$this->_selectdb = $database;
+		}
+		return $this->_connect;
 	}
 }

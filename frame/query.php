@@ -2,22 +2,21 @@
 
 namespace frame;
 
-Class Query
+final class Query
 {
-	private $_connect;
 	private $_database;
 	private $_table;
 	private $_columns;
 	private $_where;
-	private $_whereString;
 	private $_groupBy='';
 	private $_orderBy='';
 	private $_offset;
 	private $_limit=1;
 
-	public function __construct($connect) 
+	public function database($database=null)
 	{
-		$this->_connect = $connect;
+		$this->_database = $database;
+		return $this;
 	}
 
 	public function table($table = '')
@@ -26,7 +25,7 @@ Class Query
 		return $this;
 	}
 
-	public function where($columns, $operator = null, $value = null)
+	public function where($columns, $operator=null, $value=null)
 	{
 		if (empty($columns)) return $this;
 		if (is_array($columns)) {
@@ -47,7 +46,7 @@ Class Query
 		return $this;
 	}
 
-	public function whereIn($column, $value = [])
+	public function whereIn($column, $value=[])
 	{
 		return $this->where($column, 'IN', $value);
 	}
@@ -58,7 +57,7 @@ Class Query
 		return $this;
 	}
 
-	public function orderBy($columns, $operator = null)
+	public function orderBy($columns, $operator=null)
 	{
 		if (empty($columns)) return $this;
 		if (is_array($columns)) {
@@ -74,39 +73,29 @@ Class Query
 	public function groupBy($columns)
 	{
 		if (empty($columns)) return $this;
-		if (!is_array($columns)) {
-			$columns = explode(',', $columns);
-		}
-		foreach ($columns as $value) {
-			$this->_groupBy .= trim($value).',';
-		}
+		$this->_groupBy .= trim($columns).',';
 		return $this;
 	}
 
 	public function field($columns)
 	{
 		if (empty($columns)) return $this;
-		if (!is_array($columns)) {
-			$columns = explode(',', $columns);
-		}
-		foreach ($columns as $value) {
-			$this->_columns .= trim($value).',';
-		}
-        return $this;
+		$this->_columns .= trim($value).',';
+		return $this;
 	}
 
 	public function page($page, $size)
 	{
 		if ($page >= 1) {
-			$this->_offset = ($page - 1) * $size;
-			$this->_limit = (int) $size;
+			$this->_offset = ($page-1)*$size;
+			$this->_limit = (int)$size;
 		}
 		return $this;
 	}
 
 	public function get()
 	{
-		return $this->getResult() ?? [];
+		return $this->getQuery($this->getSql()) ?? [];
 	}
 
 	public function find()
@@ -118,17 +107,15 @@ Class Query
 
 	public function value($name='')
 	{
-		$this->_offset = 0;
-		$this->_limit = 1;
 		if (!empty($name)) {
 			$this->_columns = $name;
 		}
-		$info = $this->get()[0] ?? [];
+		$info = $this->find();
 		if (empty($info)) {
 			return '';
 		}
 		if (empty($name)) {
-			return array_shift($info);
+			return $info;
 		} else {
 			return $info[$name] ?? '';
 		}
@@ -137,17 +124,12 @@ Class Query
 	public function count()
 	{
 		$this->_columns = 'COUNT(*) AS count';
-		$this->_offset = 0;
-		$this->_limit = 1;
-		$result = $this->get();
-		return $result[0]['count'] ?? 0;
+		return $this->find()['count'] ?? 0;
 	}
 
-	public function insert(array $data = [])
+	public function insert(array $data=[])
 	{
-		if (empty($data)) {
-			return false;
-		}
+		if (empty($data)) return false;
 		if (empty($this->_table)) {
 			throw new \Exception('MySQL Error, no found table', 1);
 		}
@@ -155,11 +137,7 @@ Class Query
 		$fields = array_keys($data[0]);
 		$data = array_map(function($value){
 			foreach ($value as $k => $v) {
-				if (is_string($v)) {
-					$value[$k] = "'".addslashes($v)."'";
-				} else {
-					$value[$k] = (int) $v;
-				}
+				$value[$k] = "'".addslashes($v)."'";
 			}
 			return implode(',', $value);
 		}, $data);
@@ -167,35 +145,35 @@ Class Query
 		return $this->getQuery($sql);
 	}
 
-	public function update($data = [])
+	public function update(array $data=[])
 	{
 		if (empty($data)) return false;
 		$tempArr = [];
 		foreach ($data as $key => $value) {
 			$tempArr[] = '`'.$key.'`'.'='."'".addslashes($value)."'";
 		}
-		$this->analyzeWhere();
-		if (!empty($this->_whereString)){
-			$sql = sprintf('UPDATE %s SET %s WHERE %s', $this->_table, implode(',', $tempArr), $this->_whereString);
+		$whereString = $this->analyzeWhere();
+		if (!empty($whereString)){
+			$sql = sprintf('UPDATE %s SET %s WHERE %s', $this->_table, implode(',', $tempArr), $whereString);
 		} else{
 			$sql = sprintf('UPDATE %s SET %s', $this->_table, implode(',', $tempArr));
 		}
 		return $this->getQuery($sql);
 	}
 
-	public function increment($value, $num = 1) 
+	public function increment($value, $num=1) 
 	{
-		$this->analyzeWhere();
-		if (empty($this->_whereString)) return false;
-		$sql = sprintf('UPDATE %s SET %s WHERE %s', $this->_table, $value.'='.$value.' + '.$num, $this->_whereString);
+		$whereString = $this->analyzeWhere();
+		if (empty($whereString)) return false;
+		$sql = sprintf('UPDATE %s SET %s WHERE %s', $this->_table, $value.'='.$value.' + '.$num, $whereString);
 		return $this->getQuery($sql);
 	}
 
-	public function decrement($value, $num = 1) 
+	public function decrement($value, $num=1) 
 	{
-		$this->analyzeWhere();
-		if (empty($this->_whereString)) return false;
-		$sql = sprintf('UPDATE %s SET %s WHERE %s', $this->_table, $value.'='.$value.' - '.$num, $this->_whereString);
+		$whereString = $this->analyzeWhere();
+		if (empty($whereString)) return false;
+		$sql = sprintf('UPDATE %s SET %s WHERE %s', $this->_table, $value.'='.$value.' - '.$num, $whereString);
 		return $this->getQuery($sql, $this->_param);
 	}
 
@@ -210,18 +188,13 @@ Class Query
 
 	public function delete()
 	{
-		$this->analyzeWhere();
-		if (!empty($this->_whereString)){
-			$sql = sprintf('DELETE FROM %s WHERE %s', $this->_table, $this->_whereString);
+		$whereString = $this->analyzeWhere();
+		if (!empty($whereString)){
+			$sql = sprintf('DELETE FROM %s WHERE %s', $this->_table, $whereString);
 		} else{
 			$sql = sprintf('TRUNCATE TABLE %s', $this->_table);
 		}
 		return $this->getQuery($sql);
-	}
-
-	private function getResult()
-	{
-		return $this->getQuery($this->getSql());
 	}
 
 	private function getSql()
@@ -229,10 +202,10 @@ Class Query
 		if (empty($this->_table)) {
 			throw new \Exception('MySQL Error, table not exist!', 1);
 		}
-		$this->analyzeWhere();
+		$whereString = $this->analyzeWhere();
 		$sql = sprintf('SELECT %s FROM %s', empty($this->_columns) ? '*' : rtrim($this->_columns, ','), $this->_table);
-		if (!empty($this->_whereString)) {
-			$sql .= ' WHERE ' . $this->_whereString;
+		if (!empty($whereString)) {
+			$sql .= ' WHERE ' . $whereString;
 		}
 		if (!empty($this->_groupBy)) {
 			$sql .= ' GROUP BY ' . rtrim($this->_groupBy, ',');
@@ -250,7 +223,7 @@ Class Query
 	private function analyzeWhere()
 	{
 		if (empty($this->_where)) return false;
-		$this->_whereString = '';
+		$whereString = '';
 		foreach ($this->_where as $item) {
 			$fields = explode(',', $item[0]);
 			$operator = strtoupper($item[1]);
@@ -285,10 +258,10 @@ Class Query
 					$tempStr .= sprintf('%s %s %s %s', $fk == 0 ? '' : $type, $fv, $operator, $value);
 				}
 			}
-			$this->_whereString .= $start.$tempStr.$end;
+			$whereString .= $start.$tempStr.$end;
 		}
-		$this->_whereString = ltrim(trim($this->_whereString), 'AND ');
-		return true;
+		if (empty($whereString)) return '';
+		return ltrim(trim($whereString), 'AND ');
 	}
 
 	public function getQuery($sql)
@@ -297,7 +270,7 @@ Class Query
 		if (env('APP_DEBUG')) {
 			$GLOBALS['exec_sql'][] = $sql;
 		}
-		$conn = \frame\Connection::getInstance($this->_connect, $this->_database);
+		$conn = db($this->_database);
 		if ($stmt = $conn->query($sql)) {
 			if (is_bool($stmt)) {
 				return $stmt;
@@ -317,26 +290,24 @@ Class Query
 		$this->_table = '';
 		$this->_columns = '';
 		$this->_where = [];
-		$this->_whereString = '';
 		$this->_groupBy = '';
 		$this->_orderBy = '';
 		$this->_offset = null;
 		$this->_limit = 1;
-		return true;
 	}
 
 	public function start() 
-    {
-        return $this->getQuery('START TRANSACTION');
-    }
+	{
+		return $this->getQuery('START TRANSACTION');
+	}
 
-    public function rollback()
-    {
-        return $this->getQuery('ROLLBACK');
-    }
+	public function rollback()
+	{
+		return $this->getQuery('ROLLBACK');
+	}
 
-    public function commit()
-    {
-        return $this->getQuery('commit');
-    }
+	public function commit()
+	{
+		return $this->getQuery('commit');
+	}
 }

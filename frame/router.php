@@ -8,12 +8,12 @@ final class Router
 	protected $_route = []; //路由
 
 	public static function instance() 
-    {
-        if (is_null(self::$_instance)) {
-            self::$_instance = new self();
-        }
-        return self::$_instance;
-    }
+	{
+		if (is_null(self::$_instance)) {
+			self::$_instance = new self();
+		}
+		return self::$_instance;
+	}
 
 	public function analyze()
 	{

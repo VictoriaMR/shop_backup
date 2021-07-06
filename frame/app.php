@@ -1,78 +1,51 @@
 <?php
 class App 
 {
-	private static $_instance;
-
-	public static function instance()
+	public static function init() 
 	{
-		if (is_null(self::$_instance)) {
-			self::$_instance = new self();
-		}
-		return self::$_instance;
+		spl_autoload_register([__CLASS__ , 'autoload']);
+		self::make('frame/Error')->register();
 	}
 
-	public static function convertToline($name)
+	public static function run() 
 	{
-		return strtolower(preg_replace('/([a-z])([A-Z])/', '$1_$2', $name));
+		self::init();
+		self::send();
 	}
 
-	public static function convertToUp($str, $ucfirst=false)
+	public static function make($abstract)
 	{
-		$str = ucwords(str_replace('_', ' ', $str));
-		$str = str_replace(' ','',lcfirst($str));
-		return $ucfirst ? ucfirst($str) : $str;
+		return self::autoload($abstract);
 	}
 
-	public function run() 
-	{
-		//初始化方法
-		$this->init();
-		//注册异常处理
-		\frame\Error::instance()->register();
-		$this->send();
-	}
-
-	public function send()
+	private static function send()
 	{
 		//路由解析
 		$info = router()->analyze()->getRoute();
 		//中间件
-		\app\middleware\VerifyToken::instance()->handle($info);
-		//静态js,css
-		if ($info['class'] == 'Admin') {
-			html()->buildJs(['jquery', 'common', 'bootstrap', 'bootstrap-plugin']);
-			html()->buildCss(['computer/common', 'computer/bootstrap', 'computer/space', 'icon']);
-		} else {
-			html()->buildJs(['jquery', 'common']);
-			html()->buildCss(['icon', (APP_IS_MOBILE ? 'mobile/common' : 'computer/common')]);
-			if (empty(session()->get('site_language_name'))) {
-				session()->set('site_language_name', 'en');
+		self::make('app/middleware/VerifyToken')->handle($info);
+		//公共静态js,css
+		if (!IS_CLI && !IS_AJAX) {
+			if ($info['class'] == 'admin') {
+				html()->addJs(['jquery', 'common', 'bootstrap', 'bootstrap-plugin'], false);
+				html()->addCss(['computer/common', 'computer/bootstrap', 'computer/space', 'icon'], false);
+			} else {
+				html()->addJs(['jquery', 'common']);
+				html()->addCss(['icon', (IS_MOBILE ? 'mobile/common' : 'computer/common')], false);
+				if (empty(session()->get('site_language_name'))) {
+					session()->set('site_language_name', 'en');
+				}
 			}
 		}
 		//执行方法
 		$class = 'app\\controller\\'.$info['class'].'\\'.$info['path'].'Controller';
-		if (is_callable([self::autoload($class), $info['func']])) {
-			call_user_func_array([self::autoload($class), $info['func']], []);
-		}
-		$this->runover();
+		call_user_func_array([self::autoload($class), $info['func']], []);
+		self::runOver();
 	}
 
-	public function init() 
+	private static function autoload($abstract) 
 	{
-		spl_autoload_register([__CLASS__ , 'autoload']);
-	}
-
-	public function make($abstract)
-	{
-		return $this->autoload($abstract);
-	}
-
-	private function autoload($abstract) 
-	{
-		$file = strtr($abstract, '\\', DS);
-		$tempArr = explode(DS, $abstract);
-		$tempAbs = array_pop($tempArr);
-		$file = ROOT_PATH.implode(DS, $tempArr).DS.ucfirst($tempAbs).'.php';
+		$file = ROOT_PATH.strtr($abstract, '\\', DS).'.php';
 		if (is_file($file)) {
 			return \frame\Container::instance()->autoload(strtr($abstract, DS, '\\'), $file);
 		}
@@ -83,11 +56,14 @@ class App
 		}
 	}
 
-	private function runover()
+	private static function runOver()
 	{
 		if (env('APP_DEBUG')) {
-			\frame\Debug::runlog();
-			\frame\Debug::init();
+			if (IS_AJAX) {
+				self::make('frame/Debug')->runlog();
+			} else {
+				self::make('frame/Debug')->runlog()->init();
+			}
 		}
 		exit();
 	}

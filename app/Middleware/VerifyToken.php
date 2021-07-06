@@ -4,9 +4,6 @@ namespace app\middleware;
 
 class VerifyToken
 {
-
-	private static $_instance;
-	
 	private $except = [
 		'admin' => [
 			'login' => true,
@@ -17,14 +14,6 @@ class VerifyToken
 		],
 	];
 
-	public static function instance()
-	{
-		if (is_null(self::$_instance)) {
-			self::$_instance = new self();
-		}
-		return self::$_instance;
-	}
-
 	public function handle($request)
 	{
 		if ($this->inExceptArray($request)) {
@@ -34,7 +23,7 @@ class VerifyToken
 		//检查登录状态
 		if (empty(session()->get($loginKey))) {
 			session()->set('callback_url', rtrim($_SERVER['REQUEST_URI'].'?'.$_SERVER['QUERY_STRING']), '?');
-			if (isAjax()) {
+			if (IS_AJAX) {
 				header('Content-Type:application/json;charset=utf-8');
 				echo json_encode(['code'=>'10001', 'data'=>'', 'message' => 'need login'], JSON_UNESCAPED_UNICODE);
 				exit();
