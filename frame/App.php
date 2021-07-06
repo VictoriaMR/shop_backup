@@ -45,11 +45,12 @@ class App
 
 	private static function autoload($abstract) 
 	{
-		$file = ROOT_PATH.strtr($abstract, '\\', DS).'.php';
+		$file = ROOT_PATH.str_replace('\\', DS, $abstract).'.php';
 		if (is_file($file)) {
-			return \frame\Container::instance()->autoload(strtr($abstract, DS, '\\'), $file);
+			return \frame\Container::instance()->autoload(str_replace(DS, '\\', $abstract), $file);
 		}
-		if (!env('APP_DEBUG')) {
+		if (env('APP_DEBUG')) {
+			dd($file, $abstract);
 			throw new \Exception($file.' to autoload '.$abstract.' was failed!', 1);
 		} else {
 			redirect(url(404));
