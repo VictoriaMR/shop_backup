@@ -1,8 +1,8 @@
 <?php 
 
-namespace App\Services;
+namespace app\service;
 
-use App\Services\Base as BaseService;
+use app\service\Base as BaseService;
 
 /**
  * 	属性类
@@ -22,7 +22,7 @@ class AttributeService extends BaseService
             return $info['attr_id'];
         }
 
-        $translateService = make('App\Services\TranslateService');
+        $translateService = make('app\service\TranslateService');
         $data = [
             'name' => $name,
             'sort' => 0,

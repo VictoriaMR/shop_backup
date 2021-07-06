@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Services;
+namespace app\service;
 
 class FileService
 {
@@ -17,7 +17,7 @@ class FileService
             return false;
         }
         $name = md5_file($file['tmp_name']);
-        $attachmentService = make('App\Services\AttachmentService');
+        $attachmentService = make('app\service\AttachmentService');
         $data = $attachmentService->getAttachmentByName($name, 200);
         if (empty($data)) {
             $path = ROOT_PATH.env('FILE_CENTER').DS.$cate.DS;
@@ -30,7 +30,7 @@ class FileService
             if (!$result) {
                 return false;
             }
-            $imageService = make('App\Services\ImageService');
+            $imageService = make('app\service\ImageService');
             $imageService->compressImg($saveUrl);
             $data = [
                 'name' => $name,
@@ -74,7 +74,7 @@ class FileService
         }
         if (file_put_contents($tempName, $result)) {
             $name = md5_file($tempName);
-            $attachmentService = make('App\Services\AttachmentService');
+            $attachmentService = make('app\service\AttachmentService');
             $data = $attachmentService->getAttachmentByName($name);
             if (empty($data)) {
                 $path = $dir.$cate.DS;
@@ -84,7 +84,7 @@ class FileService
                 }
                 $file = $path.$name.'.'.$ext;
                 //存入压缩文件
-                $imageService = make('App\Services\ImageService');
+                $imageService = make('app\service\ImageService');
                 $imageService->compressImg($tempName, $file);
                 $data = [
                     'name' => $name,

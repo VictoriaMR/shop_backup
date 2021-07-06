@@ -1,8 +1,8 @@
 <?php
 
-namespace App\Services;
+namespace app\service;
 
-use App\Services\Base as BaseService;
+use app\service\Base as BaseService;
 use App\Models\Translate;
 
 /**
@@ -25,7 +25,7 @@ class TranslateService extends BaseService
 		if ($to == $from) {
 			return $text;
 		}
-        $lanArr = make('App\Services\LanguageService')->getInfoCache();
+        $lanArr = make('app\service\LanguageService')->getInfoCache();
         $lanArr = array_column($lanArr, 'tr_code', 'code');
         if (isset($lanArr[$to])) {
             $to = $lanArr[$to];

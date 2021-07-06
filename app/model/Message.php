@@ -1,13 +1,10 @@
 <?php
 
-namespace App\Models;
+namespace app\model;
+use app\model\Base;
 
-use App\Models\Base as BaseModel;
-
-class Message extends BaseModel
+class Message extends Base
 {
-	//表名
-    protected $table = 'message';
-    //主键
-    protected $primaryKey = 'message_id';
+	protected $table = 'message';
+	protected $primaryKey = 'message_id';
 }

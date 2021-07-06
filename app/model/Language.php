@@ -1,23 +1,20 @@
 <?php
 
-namespace App\Models;
+namespace app\model;
+use app\model\Base;
 
-use App\Models\Base as BaseModel;
-
-class Language extends BaseModel
+class Language extends Base
 {
-    //表名
-    protected $_table = 'language';
-    //主键
-    protected $_primaryKey = 'lan_id';
+	protected $_table = 'language';
+	protected $_primaryKey = 'lan_id';
 
-    public function getInfo($fields = '')
-    {
-        return $this->loadData(null, $fields);
-    }
+	public function getInfo($fields = '')
+	{
+		return $this->loadData(null, $fields);
+	}
 
-    public function create(array $data) 
-    {
-    	return $this->insertGetId($data);
-    }
+	public function create(array $data) 
+	{
+		return $this->insertGetId($data);
+	}
 }

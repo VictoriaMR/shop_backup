@@ -1,11 +1,9 @@
 <?php
 
-namespace App\Models;
+namespace app\model;
+use app\model\Base;
 
-use App\Models\Base as BaseModel;
-
-class ProductCategoryRelation extends BaseModel
+class ProductCategoryRelation extends Base
 {
-    //表名
-    protected $_table = 'product_category_relation';
+	protected $_table = 'product_category_relation';
 }

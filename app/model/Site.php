@@ -1,11 +1,10 @@
 <?php
 
-namespace App\Models;
+namespace app\model;
+use app\model\Base;
 
-use App\Models\Base as BaseModel;
-
-class Site extends BaseModel
+class Site extends Base
 {
-    protected $_table = 'site';
-    protected $_primaryKey = 'site_id';
+	protected $_table = 'site';
+	protected $_primaryKey = 'site_id';
 }

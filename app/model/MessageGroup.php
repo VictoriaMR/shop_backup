@@ -1,14 +1,9 @@
 <?php
 
-namespace App\Models;
+namespace app\model;
+use app\model\Base;
 
-use App\Models\Base as BaseModel;
-
-/**
- * 消息聊天组
- */
-class MessageGroup extends BaseModel
+class MessageGroup extends Base
 {
-	//表名
-    protected $table = 'message_group';
+	protected $table = 'message_group';
 }

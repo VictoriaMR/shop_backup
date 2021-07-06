@@ -1,8 +1,8 @@
 <?php 
 
-namespace App\Services;
+namespace app\service;
 
-use App\Services\Base as BaseService;
+use app\service\Base as BaseService;
 use App\Models\Attachment;
 
 /**

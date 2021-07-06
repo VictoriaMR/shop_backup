@@ -1,18 +1,15 @@
 <?php
 
-namespace App\Models;
+namespace app\model;
+use app\model\Base;
 
-use App\Models\Base as BaseModel;
-
-class Attribute extends BaseModel
+class Attribute extends Base
 {
-    //表名
-    protected $_table = 'attribute';
-    //主键
-    protected $_primaryKey = 'attr_id';
+	protected $_table = 'attribute';
+	protected $_primaryKey = 'attr_id';
 
-    public function create(array $data) 
-    {
-    	return $this->insertGetId($data);
-    }
+	public function create(array $data) 
+	{
+		return $this->insertGetId($data);
+	}
 }

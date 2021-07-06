@@ -1,23 +1,20 @@
 <?php
 
-namespace App\Models;
+namespace app\model;
+use app\model\Base;
 
-use App\Models\Base as BaseModel;
-
-class Category extends BaseModel
+class Category extends Base
 {
-    //表名
-    protected $_table = 'category';
-    //主键
-    protected $_primaryKey = 'cate_id';
+	protected $_table = 'category';
+	protected $_primaryKey = 'cate_id';
 
-    public function getInfo($fields)
-    {
-        return $this->loadData(null, $fields);
-    }
+	public function getInfo($fields)
+	{
+		return $this->loadData(null, $fields);
+	}
 
-    public function create(array $data) 
-    {
-    	return $this->insertGetId($data);
-    }
+	public function create(array $data) 
+	{
+		return $this->insertGetId($data);
+	}
 }

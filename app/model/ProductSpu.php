@@ -1,13 +1,10 @@
 <?php
 
-namespace App\Models;
+namespace app\model;
+use app\model\Base;
 
-use App\Models\Base as BaseModel;
-
-class ProductSpu extends BaseModel
+class ProductSpu extends Base
 {
-    //表名
-    protected $_table = 'product_spu';
-    //主键
-    protected $_primaryKey = 'spu_id';
+	protected $_table = 'product_spu';
+	protected $_primaryKey = 'spu_id';
 }

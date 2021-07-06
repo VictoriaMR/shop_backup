@@ -1,26 +1,24 @@
 <?php
 
-namespace App\Models;
+namespace app\model;
+use app\model\Base;
 
-use App\Models\Base as BaseModel;
-
-class ProductLanguage extends BaseModel
+class ProductLanguage extends Base
 {
-    //表名
-    protected $_table = 'product_language';
+	protected $_table = 'product_language';
 
-    public function getInfo($fields)
-    {
-        return $this->loadData(null, $fields);
-    }
+	public function getInfo($fields)
+	{
+		return $this->loadData(null, $fields);
+	}
 
-    public function create(array $data) 
-    {
-    	return $this->insert($data);
-    }
+	public function create(array $data) 
+	{
+		return $this->insert($data);
+	}
 
-    public function isExist($spuId, $lanId)
-    {
-        return $this->getCount(['spu_id' => (int)$spuId, 'lan_id' => (int)$lanId]) > 0;
-    }
+	public function isExist($spuId, $lanId)
+	{
+		return $this->getCount(['spu_id' => (int)$spuId, 'lan_id' => (int)$lanId]) > 0;
+	}
 }

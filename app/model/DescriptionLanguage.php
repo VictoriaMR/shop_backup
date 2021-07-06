@@ -1,11 +1,9 @@
 <?php
 
-namespace App\Models;
+namespace app\model;
+use app\model\Base;
 
-use App\Models\Base as BaseModel;
-
-class DescriptionLanguage extends BaseModel
+class DescriptionLanguage extends Base
 {
-    //表名
-    protected $_table = 'description_language';
+	protected $_table = 'description_language';
 }

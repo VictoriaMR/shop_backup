@@ -1,17 +1,10 @@
 <?php
 
-namespace App\Models;
+namespace app\model;
+use app\model\Base;
 
-use App\Models\Base as BaseModel;
-
-/**
- * 消息组成员
- */
-class MessageMember extends BaseModel
+class MessageMember extends Base
 {
-	//表名
-    protected $table = 'message_member';
-
-    //主键
-    protected $primaryKey = 'item_id';
+	protected $table = 'message_member';
+	protected $primaryKey = 'item_id';
 }

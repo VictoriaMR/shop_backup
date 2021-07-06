@@ -1,10 +1,9 @@
 <?php
 
-namespace App\Models;
+namespace app\model;
+use app\model\Base;
 
-use App\Models\Base as BaseModel;
-
-class SiteLanguage extends BaseModel
+class SiteLanguage extends Base
 {
-    protected $_table = 'site_language';
+	protected $_table = 'site_language';
 }

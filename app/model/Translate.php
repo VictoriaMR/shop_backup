@@ -1,11 +1,10 @@
 <?php
 
-namespace App\Models;
+namespace app\model;
+use app\model\Base;
 
-use App\Models\Base as BaseModel;
-
-class Translate extends BaseModel
+class Translate extends Base
 {
-    protected $_table = 'translate';
-    protected $_primaryKey = 'tran_id';
+	protected $_table = 'translate';
+	protected $_primaryKey = 'tran_id';
 }

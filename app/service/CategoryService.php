@@ -1,8 +1,8 @@
 <?php 
 
-namespace App\Services;
+namespace app\service;
 
-use App\Services\Base as BaseService;
+use app\service\Base as BaseService;
 use App\Models\Category;
 
 /**
@@ -34,8 +34,8 @@ class CategoryService extends BaseService
         $cateId = $this->baseModel->create($insert);
         //设置多语言
         $cateLanModel = make('App\Models\CategoryLanguage');
-        $translateService = make('App\Services\TranslateService');
-        $lanList = make('App\Services\LanguageService')->getInfo();
+        $translateService = make('app\service\TranslateService');
+        $lanList = make('app\service\LanguageService')->getInfo();
         foreach ($lanList as $key => $value) {
             if ($value['code'] == 'zh') {
                 $tempName = $name;

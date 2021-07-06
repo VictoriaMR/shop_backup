@@ -1,21 +1,19 @@
 <?php
 
-namespace App\Models;
+namespace app\model;
+use app\model\Base;
 
-use App\Models\Base as BaseModel;
-
-class ProductAttributeRelation extends BaseModel
+class ProductAttributeRelation extends Base
 {
-    //表名
-    protected $_table = 'product_attribute_relation';
+	protected $_table = 'product_attribute_relation';
 
-    public function getInfo($fields)
-    {
-        return $this->loadData(null, $fields);
-    }
+	public function getInfo($fields)
+	{
+		return $this->loadData(null, $fields);
+	}
 
-    public function create(array $data) 
-    {
-    	return $this->insert($data);
-    }
+	public function create(array $data) 
+	{
+		return $this->insert($data);
+	}
 }

@@ -1,8 +1,8 @@
 <?php 
 
-namespace App\Services;
+namespace app\service;
 
-use App\Services\Base as BaseService;
+use app\service\Base as BaseService;
 
 /**
  * 	属性值类
@@ -25,7 +25,7 @@ class AttrvalueService extends BaseService
             'name' => $name,
             'sort' => 0,
         ];
-        $translateService = make('App\Services\TranslateService');
+        $translateService = make('app\service\TranslateService');
         $attvId = make('App\Models\Attrvalue')->create($data);
         //设置多语言
         $attrLanModel = make('App\Models\AttrvalueLanguage');

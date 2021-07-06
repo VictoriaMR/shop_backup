@@ -1,8 +1,8 @@
 <?php 
 
-namespace App\Services;
+namespace app\service;
 
-use App\Services\Base as BaseService;
+use app\service\Base as BaseService;
 
 /**
  * 	产品类
@@ -71,23 +71,23 @@ class ProductSpuService extends BaseService
 		}
 		$info['avatar'] = mediaUrl($info['avatar']);
 		//价格格式化
-		$languageService = make('App\Services\LanguageService');
+		$languageService = make('app\service\LanguageService');
 		$priceFormat = $languageService->priceFormat($info['min_price'], $lanId);
 		$info['price_format'] = $priceFormat['price'];
 		$info['price_symbol'] = $priceFormat['symbol'];
 		$info['url'] = filterUrl($info['name'], 'p', $spuId);
 		//获取sku列表
-		$skuService = make('App\Services\ProductSkuService');
+		$skuService = make('app\service\ProductSkuService');
 		$skuList = $skuService->getListBySpuId($spuId);
 		$skuList = array_column($skuList, null, 'sku_id');
 		$skuIdArr = array_keys($skuList);
 		//sku属性关联
 		$skuRelationArr = $skuService->getAttributeRelation($skuIdArr);
 		$attrIdArr = array_unique(array_column($skuRelationArr, 'attr_id'));
-		$attrData = make('App\Services\AttributeService')->getInfo($attrIdArr, 1);
+		$attrData = make('app\service\AttributeService')->getInfo($attrIdArr, 1);
 		$attrData = array_column($attrData, 'name', 'attr_id');
 		$attvIdArr = array_unique(array_column($skuRelationArr, 'attv_id'));
-		$attvData = make('App\Services\AttrvalueService')->getInfo($attvIdArr, 1);
+		$attvData = make('app\service\AttrvalueService')->getInfo($attvIdArr, 1);
 		$attvData = array_column($attvData, 'name', 'attv_id');
 
 		//获取spu图片ID集
@@ -96,7 +96,7 @@ class ProductSpuService extends BaseService
 		$skuImageList = $skuService->getInfoBySkuIds($skuIdArr);
 		//全部图片合集
 		$attachArr = array_unique(array_filter(array_merge($spuImageList, array_column($skuImageList, 'attach_id'), array_column($skuRelationArr, 'attach_id'))));
-		$attachArr = make('App\Services\AttachmentService')->getAttachmentListById($attachArr);
+		$attachArr = make('app\service\AttachmentService')->getAttachmentListById($attachArr);
 		$attachArr = array_column($attachArr, 'url', 'attach_id');
 		foreach ($spuImageList as $value) {
 			$info['image'][] = $attachArr[$value];
@@ -140,7 +140,7 @@ class ProductSpuService extends BaseService
 		//获取翻译语言
 		if ($lanId != env('DEFAULT_LANGUAGE_ID')) {
 			$skuIdArr[] = 0;
-			$textArr = make('App\Services\ProductLanguageService')->getTextArr($spuId, $skuIdArr, $lanId);
+			$textArr = make('app\service\ProductLanguageService')->getTextArr($spuId, $skuIdArr, $lanId);
 			$textArr = array_column($textArr, 'name', 'sku_id');
 			$info['name'] = empty($textArr[0]) ? $info['name'] : $textArr[0];
 			foreach ($skuList as $key => $value) {

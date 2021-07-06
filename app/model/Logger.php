@@ -1,15 +1,11 @@
 <?php
 
-namespace App\Models;
+namespace app\model;
+use app\model\Base;
 
-use App\Models\Base as BaseModel;
-
-class Logger extends BaseModel
+class Logger extends Base
 {
-    //表名
-    protected $_table = 'visitor_log';
-    //主键
-    protected $_primaryKey = 'log_id';
-    
-    protected $_connect = 'static';
+	protected $_connect = 'static';
+	protected $_table = 'visitor_log';
+	protected $_primaryKey = 'log_id';
 }

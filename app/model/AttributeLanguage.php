@@ -1,32 +1,30 @@
 <?php
 
-namespace App\Models;
+namespace app\model;
+use app\model\Base;
 
-use App\Models\Base as BaseModel;
-
-class AttributeLanguage extends BaseModel
+class AttributeLanguage extends Base
 {
-    //表名
-    protected $_table = 'attribute_language';
+	protected $_table = 'attribute_language';
 
-    public function getInfo($attrId, $lanId)
-    {
-        return $this->getInfoByWhere(['attr_id' => $attrId, 'lan_id' => $lanId]);
-    }
+	public function getInfo($attrId, $lanId)
+	{
+		return $this->getInfoByWhere(['attr_id' => $attrId, 'lan_id' => $lanId]);
+	}
 
-    public function existData($attrId, $lanId) 
-    {
-        return $this->getCount(['attr_id' => $attrId, 'lan_id' => $lanId]) > 0;
-    }
+	public function existData($attrId, $lanId) 
+	{
+		return $this->getCount(['attr_id' => $attrId, 'lan_id' => $lanId]) > 0;
+	}
 
-    public function create(array $data) 
-    {
-        if (empty($data['attr_id']) || empty($data['lan_id']) || empty($data['name'])) {
-            return false;
-        }
-        if ($this->existData($data['attr_id'], $data['lan_id'])) {
-            return true;
-        }
-    	return $this->insertGetId($data);
-    }
+	public function create(array $data) 
+	{
+		if (empty($data['attr_id']) || empty($data['lan_id']) || empty($data['name'])) {
+			return false;
+		}
+		if ($this->existData($data['attr_id'], $data['lan_id'])) {
+			return true;
+		}
+		return $this->insertGetId($data);
+	}
 }
