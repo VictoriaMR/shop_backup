@@ -19,7 +19,7 @@ class Locker
 		}
 
 		$lock = redis(2)->set(self::LOCKERPREFIX.$name, $cas, ['nx', 'ex' => $timeout]);
-		if($lock) {
+		if ($lock) {
 			$this->lock[$name] = $cas;
 		}
 		return $lock;
@@ -43,4 +43,22 @@ class Locker
 		}
 		return false;
 	}
+
+	public function update($name, $timeout=10)
+    {
+		if ($timeout < 1) {
+			$timeout = 10;
+		}
+		$cas = $this->lock[$name] ?? false;
+		make('frame/Debug')->runlog(json_encode($this->lock, JSON_UNESCAPED_UNICODE), 'temp');
+		if (empty($cas)) { //当前无锁
+			return false;
+		}
+		$key = self::LOCKERPREFIX.$name;
+		$lock = redis(2)->get($key);
+		if ($lock != $cas) {
+			return false;
+		}
+		return redis(2)->expire($key, $timeout);
+    }
 }

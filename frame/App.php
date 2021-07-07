@@ -22,30 +22,37 @@ class App
 	{
 		//路由解析
 		$info = router()->analyze()->getRoute();
-		//中间件
-		self::make('app/middleware/VerifyToken')->handle($info);
-		//公共静态js,css
-		if (!IS_CLI && !IS_AJAX) {
-			if ($info['class'] == 'admin') {
-				html()->addJs(['jquery', 'common', 'bootstrap', 'bootstrap-plugin'], false);
-				html()->addCss(['computer/common', 'computer/bootstrap', 'computer/space', 'icon'], false);
-			} else {
-				html()->addJs(['jquery', 'common']);
-				html()->addCss(['icon', (IS_MOBILE ? 'mobile/common' : 'computer/common')], false);
-				if (empty(session()->get('site_language_name'))) {
-					session()->set('site_language_name', 'en');
-				}
-			}
-		}
 		//执行方法
 		$class = 'app\\controller\\'.$info['class'].'\\'.$info['path'].'Controller';
-		call_user_func_array([self::autoload($class), $info['func']], []);
+
+		$callArr = [self::autoload($class), $info['func']];
+		if (is_callable($callArr)) {
+			//中间件
+			self::make('app/middleware/VerifyToken')->handle($info);
+			//公共静态js,css
+			if (!IS_CLI && !IS_AJAX) {
+				if ($info['class'] == 'admin') {
+					html()->addJs(['jquery', 'common', 'bootstrap', 'bootstrap-plugin'], false);
+					html()->addCss(['computer/common', 'computer/bootstrap', 'computer/space', 'icon'], false);
+				} else {
+					html()->addJs(['jquery', 'common']);
+					html()->addCss(['icon', (IS_MOBILE ? 'mobile/common' : 'computer/common')], false);
+					if (empty(session()->get('site_language_name'))) {
+						session()->set('site_language_name', 'en');
+					}
+				}
+			}
+			call_user_func_array($callArr, []);
+		} else {
+			throw new \Exception($class.' '.$info['func'].' was not exist!', 1);
+		}
 		self::runOver();
 	}
 
 	private static function autoload($abstract, $params=[]) 
 	{
 		$file = ROOT_PATH.str_replace('\\', DS, $abstract).'.php';
+
 		if (is_file($file)) {
 			return \frame\Container::instance()->autoload(str_replace(DS, '\\', $abstract), $file, $params);
 		}

@@ -15,8 +15,8 @@ class MainTask extends TaskDriver
 		$this->config['info'] = '系统核心队列任务';
 	}
 
-	public function start()
+	public function run()
 	{
-		echo 'here';
+		echo __FUNCTION__;
 	}
 }

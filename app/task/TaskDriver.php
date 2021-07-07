@@ -12,7 +12,6 @@ abstract class TaskDriver
 	protected $cas ='';
 	protected $ip = '';
 	protected $data = '';
-	protected $continueRuning = true;
 	protected $key = '';
 	public $config = [
 		'info' => '任务说明',
@@ -40,7 +39,7 @@ abstract class TaskDriver
 		} else {
 			set_time_limit(0);
 			$process['lock'] = json_decode(base64_decode($process['lock']), true);
-            $process['data'] = json_decode(base64_decode($process['data']), true);
+			$process['data'] = json_decode(base64_decode($process['data']), true);
 			list($this->key, $this->cas) = $process['lock'];
 			if (isset($process['data'])) {
 				$this->data = $process['data'];
@@ -75,4 +74,97 @@ abstract class TaskDriver
 	{
 		return $this->setInfo('boot', 'on');
 	}
+
+	public function echo($msg)
+	{
+		$this->setInfo('info', $msg);
+	}
+
+	protected function before(){}
+
+	public function continueRuning()
+	{
+		if (!$this->updateLock()) {
+			return false;
+		}
+		dd('123123');
+		// 关闭的不运行, 主任务不能关闭
+		$boot = $this->getInfo('boot');
+		if(Task::getStandClassName(self::getClassName())=='core\task\MainTask' && $boot=='off') {
+		$boot='restart';
+		}
+		if($boot=='off') {
+		$this->beforeShutdown();
+		return false;
+		}
+		// 重启任务
+		if($boot=='restart'){
+		$this->beforeRestart();
+		$this->setInfo('boot','on');
+		return false;
+		}
+		// 设定有限运行次数的
+		if($this->runCountLimit==0){
+		return false;
+		}
+		if($this->runCountLimit>0){
+		$this->runCountLimit--;
+		}
+		// 设置了运行时间限制的
+		if($this->runTimeLimit>0 && time()-$this->startTime>$this->runTimeLimit){
+		return false;
+		}
+
+		self::$redis->hIncrBy(self::TASKPREFIX . $this->key, 'loopCount', 1);
+
+		return true;
+	}
+
+	protected function updateLock()
+	{
+		$this->ping();
+		if (make('frame/Locker')->update($this->lock, $this->lockTimeout)) {
+			return true;
+		}
+		return false;
+	}
+
+	protected function ping()
+	{
+		$this->setInfo('ping_time', now());
+	}
+
+	public function start()
+	{
+		if (make('frame/Locker')->getLock($this->lock, $this->cas)) {
+			$this->echo('任务启动中 '.now());
+			$this->before();
+			$result = true;
+			while ($result && $this->continueRuning()) {
+				$result = $this->run();
+				Debug::remark($this->key.'-end','time');
+				$runTime=Debug::getRangeTime($this->key.'-start',$this->key.'-end');
+				$this->setInfo('memoryUsage',Debug::getNowUseMem().'/'.Debug::getNowMemPeak());
+				$this->setInfo('currentMemory',memory_get_usage());
+				if($result) {
+				// 防止死循环减轻服务器压力
+				if ($runTime < 0.01 && $this->sleep < 0.01) { // 替代==0判断
+				usleep(10000); //0.01s
+				}
+				if ($this->sleep >=1) {
+				sleep($this->sleep);
+				} elseif ($this->sleep > 0) {
+				usleep($this->sleep*1000000);
+				}
+			}
+			$this->resourcesPing();
+			}
+        }
+		$this->unlock();
+		$this->after();
+	}
+
+    // 任务类具体工作方法, 单次工作， 外层已有循环
+    // 如果 run 方法单次运行比较久， 请务必注意适当时间调用 $this->lockUpdate(); 时间间隔不能大于 $this->lockTimeout
+    abstract public function run();
 }
