@@ -13,9 +13,9 @@ class App
 		self::send();
 	}
 
-	public static function make($abstract)
+	public static function make($abstract, $params=null)
 	{
-		return self::autoload($abstract);
+		return self::autoload($abstract, $params);
 	}
 
 	private static function send()
@@ -43,14 +43,13 @@ class App
 		self::runOver();
 	}
 
-	private static function autoload($abstract) 
+	private static function autoload($abstract, $params=[]) 
 	{
 		$file = ROOT_PATH.str_replace('\\', DS, $abstract).'.php';
 		if (is_file($file)) {
-			return \frame\Container::instance()->autoload(str_replace(DS, '\\', $abstract), $file);
+			return \frame\Container::instance()->autoload(str_replace(DS, '\\', $abstract), $file, $params);
 		}
 		if (env('APP_DEBUG')) {
-			dd($file, $abstract);
 			throw new \Exception($file.' to autoload '.$abstract.' was failed!', 1);
 		} else {
 			redirect(url(404));

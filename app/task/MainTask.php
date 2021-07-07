@@ -2,15 +2,21 @@
 
 namespace app\task;
 
-class MainTask
+class MainTask extends TaskDriver
 {
-	const TIME_OUT = 1000;
-	
+	public function __construct($process=[])
+	{
+		parent::__construct($process);
+		if (!empty($process)) {
+			$this->lockTimeout = config('task.timeout');
+			$this->runTimeLimit = 0;
+			$this->sleep = 60;
+		}
+		$this->config['info'] = '系统核心队列任务';
+	}
+
 	public function start()
 	{
-		if (IS_CLI) {
-			return;
-		}
-		$taskClass = 'app\task\MainTask';
+		echo 'here';
 	}
 }

@@ -8,7 +8,15 @@ function dd(...$arg){
 }
 function config($name=''){
 	if (empty($name)) return $GLOBALS;
-	return $GLOBALS[$name] ?? [];
+	$name = explode('.', $name);
+	$data = $GLOBALS;
+	foreach ($name as $value) {
+		if (empty($data[$value])) {
+			return false;
+		}
+		$data = $data[$value];
+	}
+	return $data;
 }
 function env($name='', $replace=''){
 	if (defined($name))

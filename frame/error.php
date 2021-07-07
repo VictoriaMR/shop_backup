@@ -52,8 +52,13 @@ class Error
 
 	protected function errorEcho($file, $line, $message)
 	{
-		if (!IS_CLI) {
-			make('frame/Debug')->runlog($message);
+		make('frame/Debug')->runlog($message);
+		if (IS_CLI) {
+			echo 'File: '.$file.PHP_EOL;
+			echo 'File: '.$file.PHP_EOL;
+			echo 'Line: '.$line.PHP_EOL;
+			echo 'Error Message: '.$message.PHP_EOL;
+		} else {
 			if (env('APP_DEBUG')) {
 				echo 'File: '.$file.'<br />';
 				echo 'Line: '.$line.'<br />';

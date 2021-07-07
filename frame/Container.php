@@ -17,17 +17,18 @@ final class Container
 		return self::$_instance;
 	}
 
-	public function autoload($concrete, $file) 
+	public function autoload($concrete, $file, $params=null)
 	{
 		if (isset($this->_building[$concrete])) {
 			return $this->_building[$concrete];
 		}
 		require $file;
-		return $this->build($concrete);
+		$this->params = $params;
+		return $this->build($concrete, $params);
 	}
 
-	private function build($concrete)
-		{
+	private function build($concrete, $params=null)
+	{
 		if ($concrete instanceof Closure) {
 			return $concrete($this);
 		}
@@ -35,39 +36,12 @@ final class Container
 		if (!$reflector->isInstantiable()) {
 			return $concrete;
 		}
-		$constructor = $reflector->getConstructor();
-		if (is_null($constructor)) {
-			$object = new $concrete;
+		if (is_null($reflector->getConstructor())) {
+			$object = $reflector->newInstance();
 		} else {
-			$object = $reflector->newInstanceArgs($this->getDependencies($constructor->getParameters()));
+			$object = $reflector->newInstance($params);
 		}
 		$this->_building[$concrete] = $object;
 		return $object;
-	}
-
-	private function getDependencies(array $dependencies)
-	{
-		$results = [];
-		foreach ($dependencies as $dependency) {
-			if (is_null($dependency->getType())) {
-				$results[] = $this->resolvedNonClass($dependency);
-			} else {
-				$results[] = $this->resolvedClass($dependency);
-			}
-		}
-		return $results;
-	}
-
-	private function resolvedNonClass(ReflectionParameter $parameter)
-	{
-		if($parameter->isDefaultValueAvailable()) {
-			return $parameter->getDefaultValue();
-		}
-		return false;
-	}
-
-	private function resolvedClass(ReflectionParameter $parameter)
-	{
-		return $this->build($parameter->getType()->getName());
 	}
 }

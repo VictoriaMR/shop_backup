@@ -13,12 +13,12 @@ class Locker
 			$timeout = 100;
 		}
 		if ($isShareLock) {
-			$cas = 'ShareLock-'.$timeout;
+			$cas = 'frame-sharelock-'.$timeout;
 		} else {
 			$cas = make('frame/Str')->random(32);
 		}
 
-		$lock = redis()->set(self::LOCKERPREFIX.$name, $cas, ['nx', 'ex' => $timeout]);
+		$lock = redis(2)->set(self::LOCKERPREFIX.$name, $cas, ['nx', 'ex' => $timeout]);
 		if($lock) {
 			$this->lock[$name] = $cas;
 		}
@@ -32,5 +32,15 @@ class Locker
 			unset($this->lock[$name]);
 		}
 		return $cas;
+	}
+
+	public function getLock($name, $cas)
+	{
+		$lock = redis(2)->get(self::LOCKERPREFIX.$name);
+		if ($lock == $cas) {
+			$this->lock[$name] = $cas;
+			return true;
+		}
+		return false;
 	}
 }

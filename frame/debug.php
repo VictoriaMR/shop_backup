@@ -56,9 +56,9 @@ class Debug
 		view()->load('frame/pagetrace', false);
 	}
 
-	public function runlog($msg='')
+	public function runlog($msg, $type='')
 	{
-		$destination = ROOT_PATH.'runtime'.DS.date('Ym').DS.date('d').'.log';
+		$destination = ROOT_PATH.'runtime'.DS.date('Ym').DS.date('d').(empty($type) ? '' : '_'.$type).'.log';
 
 		if (!is_file($destination)) {
 			$path = dirname($destination);
@@ -87,7 +87,7 @@ class Debug
 		} else {
 			$message = preg_replace('/\s(?=\s)/', '\\1', $msg).PHP_EOL;
 		}
-		error_log('[runtime] '.now().' [server addr] '.$server.' [remote addr] '.$remote.$current_uri.PHP_EOL.$info.$message.'---------------------------------------------------------------'.PHP_EOL, 3, $destination);
+		error_log('[runtime] '.'[runtime] '.now().' [server addr] '.$server.' [remote addr] '.$remote.$current_uri.PHP_EOL.$info.$message.'---------------------------------------------------------------'.PHP_EOL, 3, $destination);
 		return $this;
 	}
 }
